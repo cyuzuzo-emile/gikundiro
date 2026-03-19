@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Rayon Sports FC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Admin panel for managing Rayon Sports FC content (demo).">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo"><img src="ray.jpg" alt="Rayon Sports FC"></div>
+                    <div>
+                        <div class="club-name">Rayon Sports FC</div>
+                        <div class="club-motto">Gikundiro</div>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+                <nav class="nav-menu" id="navMenu">
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="squad.html">Squad</a></li>
+                        <li><a href="fixtures.html">Fixtures & Results</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="news.html">News</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Admin Panel</h1>
+            <p>Log in to manage news content. Demo password: rayon2024.</p>
+        </div>
+    </section>
+     <section class="admin-section" id="adminSection" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">Admin Dashboard</h2>
+            
+            <div class="admin-form">
+                <h3 style="color: var(--primary-blue); margin-bottom: 20px;">Add News Article</h3>
+                
+                <div class="form-group">
+                    <label for="newsTitle">News Title</label>
+                    <input type="text" id="newsTitle" class="form-control" placeholder="Enter news title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newsDate">Date</label>
+                    <input type="date" id="newsDate" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newsContent">News Content</label>
+                    <textarea id="newsContent" class="form-control" rows="5" placeholder="Enter news content"></textarea>
+                </div>
+                
+                <button class="btn" id="addNewsBtn">Add News Article</button>
+                <button class="btn" id="logoutBtn" style="background-color: var(--dark-gray); margin-left: 10px;">Logout</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="adminSection" class="admin-section" style="display:none;">
+        <div class="container">
+            <div class="admin-form">
+                <h2 style="color: var(--primary-blue); margin-bottom: 20px;">Player Photos</h2>
+                <div class="form-group">
+                    <label for="playerSelect">Select Player</label>
+                    <select id="playerSelect" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label for="playerPhotoUrl">Photo URL</label>
+                    <input id="playerPhotoUrl" type="url" class="form-control" placeholder="https://...">
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom: 30px;">
+                    <button id="savePlayerPhotoBtn" class="btn">Save Player Photo</button>
+                </div>
+
+                <h2 style="color: var(--primary-blue); margin-bottom: 20px;">Add News Article</h2>
+                <div class="form-group">
+                    <label for="newsTitle">Title</label>
+                    <input id="newsTitle" type="text" class="form-control" placeholder="Article title">
+                </div>
+                <div class="form-group">
+                    <label for="contentType">Type</label>
+                    <select id="contentType" class="form-control">
+                        <option value="news">News</option>
+                        <option value="feature">Feature</option>
+                    </select>
+                    
+                </div>
+                <div class="form-group">
+                    <label for="newsDate">Date</label>
+                    <input id="newsDate" type="date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="newsContent">Content</label>
+                    <textarea id="newsContent" class="form-control" rows="6" placeholder="Article content"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="newsImageUrl">Image URL</label>
+                    <input id="newsImageUrl" type="url" class="form-control" placeholder="https://...">
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button id="addNewsBtn" class="btn">Add Article</button>
+                    <button id="logoutBtn" class="btn" style="background-color: var(--gold); color: var(--primary-blue);">Logout</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo"><img src="ray.jpg" alt="Rayon Sports FC"></div>
+                    <p>Rayon Sports Football Club, founded in 1968, is one of Rwanda's most successful and popular football clubs.</p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 10px;"><a href="index.html" style="color: var(--white); text-decoration: none;">Home</a></li>
+                        <li style="margin-bottom: 10px;"><a href="about.html" style="color: var(--white); text-decoration: none;">About Club</a></li>
+                        <li style="margin-bottom: 10px;"><a href="squad.html" style="color: var(--white); text-decoration: none;">Team Squad</a></li>
+                        <li style="margin-bottom: 10px;"><a href="news.html" style="color: var(--white); text-decoration: none;">Latest News</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Kigali Pele Stadium, Kigali</p>
+                    <p><i class="fas fa-envelope"></i> info@rayonsportsfc.rw</p>
+                    <p><i class="fas fa-phone"></i> +250 788 123 456</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 Rayon Sports FC. All Rights Reserved. | Club Motto: <em>Gikundiro</em></p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="admin.html" class="admin-login-btn" id="adminLoginBtn"><i class="fas fa-lock"></i> Admin Login</a>
+    <script src="script.js"></script>
+</body>
+</html>

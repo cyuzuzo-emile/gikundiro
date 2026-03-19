@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News - Rayon Sports FC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Latest news from Rayon Sports FC.">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo"><img src="ray.jpg" alt="Rayon Sports FC"></div>
+                    <div>
+                        <div class="club-name">Rayon Sports FC</div>
+                        <div class="club-motto">Gikundiro</div>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+                <nav class="nav-menu" id="navMenu">
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="squad.html">Squad</a></li>
+                        <li><a href="fixtures.html">Fixtures & Results</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="news.html">News</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Latest News</h1>
+            <p>Updates from the club, players, and community.</p>
+        </div>
+    </section>
+
+    <section class="section-bg">
+        <div class="container">
+            <div style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
+                <button class="filter-btn news-filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn news-filter-btn" data-filter="news">News</button>
+                <button class="filter-btn news-filter-btn" data-filter="features">Features</button>
+            </div>
+            <div class="news-grid">
+                <div class="news-card">
+                    <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?auto=format&fit=crop&w=1200&q=80');"></div>
+                    <div class="news-content">
+                        <div class="news-date">June 1, 2024</div>
+                        <h3 class="news-title">Rayon Sports Signs New Striker</h3>
+                        <p>The club has announced the signing of a talented striker from the youth academy to bolster the attacking options for the upcoming season.</p>
+                    </div>
+                </div>
+                <div class="news-card">
+                    <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1598880791506-cf6e47d3c96f?auto=format&fit=crop&w=1200&q=80');"></div>
+                    <div class="news-content">
+                        <div class="news-date">May 25, 2024</div>
+                        <h3 class="news-title">Victory Against Top Rivals</h3>
+                        <p>Rayon Sports secured an important 2-1 victory against their long-time rivals in a thrilling match at Kigali Pele Stadium.</p>
+                    </div>
+                </div>
+                <div class="news-card">
+                    <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1594736797933-d1001f7c6e1a?auto=format&fit=crop&w=1200&q=80');"></div>
+                    <div class="news-content">
+                        <div class="news-date">May 18, 2024</div>
+                        <h3 class="news-title">Community Outreach Program</h3>
+                        <p>Rayon Sports players visited local schools as part of the club's community engagement initiative to inspire young footballers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo"><img src="ray.jpg" alt="Rayon Sports FC"></div>
+                    <p>Rayon Sports Football Club, founded in 1968, is one of Rwanda's most successful and popular football clubs.</p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 10px;"><a href="index.html" style="color: var(--white); text-decoration: none;">Home</a></li>
+                        <li style="margin-bottom: 10px;"><a href="about.html" style="color: var(--white); text-decoration: none;">About Club</a></li>
+                        <li style="margin-bottom: 10px;"><a href="squad.html" style="color: var(--white); text-decoration: none;">Team Squad</a></li>
+                        <li style="margin-bottom: 10px;"><a href="news.html" style="color: var(--white); text-decoration: none;">Latest News</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Kigali Pele Stadium, Kigali</p>
+                    <p><i class="fas fa-envelope"></i> info@rayonsportsfc.rw</p>
+                    <p><i class="fas fa-phone"></i> +250 788 123 456</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 Rayon Sports FC. All Rights Reserved. | Club Motto: <em>Gikundiro</em></p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="admin.html" class="admin-login-btn" id="adminLoginBtn"><i class="fas fa-lock"></i> Admin Login</a>
+    <script src="script.js"></script>
+</body>
+</html>
