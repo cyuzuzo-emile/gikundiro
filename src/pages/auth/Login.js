@@ -151,23 +151,7 @@ const Login = () => {
             </Link>
           </p>
 
-          <div className="mt-8 pt-8 border-t border-gray-800">
-            <p className="text-center text-gray-500 text-sm">Demo Credentials</p>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <button
-                onClick={() => { setFormData({ email: 'admin@rayonsports.rw', password: '1' }); }}
-                className="px-4 py-2 bg-surface-light rounded-lg text-sm text-gray-400 hover:bg-surface hover:text-white transition-colors"
-              >
-                Admin: admin@rayonsports.rw
-              </button>
-              <button
-                onClick={() => { setFormData({ email: 'fan@rayonsports.rw', password: 'fan123' }); }}
-                className="px-4 py-2 bg-surface-light rounded-lg text-sm text-gray-400 hover:bg-surface hover:text-white transition-colors"
-              >
-                Fan: fan@rayonsports.rw
-              </button>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

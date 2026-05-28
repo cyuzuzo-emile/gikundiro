@@ -208,27 +208,85 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add News Article
     if (addNewsBtn) {
-        addNewsBtn.addEventListener('click', () => {
+        addNewsBtn.addEventListener('click', async () => {
             const title = document.getElementById('newsTitle').value;
-            const type = document.getElementById('contentType') ? document.getElementById('contentType').value : 'news';
             const date = document.getElementById('newsDate').value;
             const content = document.getElementById('newsContent').value;
-            const imageUrl = document.getElementById('newsImageUrl') ? document.getElementById('newsImageUrl').value : '';
+            const imageInput = document.getElementById('newsImage');
+            
             if (title && date && content) {
-                const data = loadContent();
-                const item = { id: Date.now(), title, date, content, imageUrl };
-                if (type === 'feature') {
-                    data.features.unshift(item);
-                } else {
-                    data.news.unshift(item);
+                try {
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('content', content);
+                    formData.append('category', 'News'); // Default category
+                    formData.append('author', 'admin'); // For demo purposes
+                    
+                    // Add image file if selected
+                    if (imageInput.files && imageInput.files[0]) {
+                        formData.append('image', imageInput.files[0]);
+                    }
+                    
+                    const response = await fetch('/api/news', {
+                        method: 'POST',
+                        body: formData
+    });
+     
+    // Load and display news on page load
+    loadAndDisplayNews();
+                    
+                    if (response.ok) {
+                        alert('News article added successfully!');
+                        // Reset form
+                        document.getElementById('newsTitle').value = '';
+                        document.getElementById('newsDate').value = '';
+                        document.getElementById('newsContent').value = '';
+                        imageInput.value = '';
+                        
+                // Reload news to show the new article
+                loadAndDisplayNews();
+            } else {
+                const errorData = await response.json();
+                alert('Error adding news: ' + (errorData.message || response.statusText));
+            }
+        } catch (error) {
+            alert('Error adding news: ' + error.message);
+        }
+    });
+}
+
+// Load and display news from API
+async function loadAndDisplayNews() {
+    try {
+        const response = await fetch('/api/news');
+        if (response.ok) {
+            const news = await response.json();
+            // Assuming there's a container to display news
+            const newsContainer = document.querySelector('.news-grid');
+            if (newsContainer) {
+                newsContainer.innerHTML = news.map(item => `
+                    <div class="news-card">
+                        ${item.image ? `<div class="news-image" style="background-image: url('${item.image}');"></div>` : ''}
+                        <div class="news-content">
+                            <div class="news-date">${new Date(item.createdAt).toLocaleDateString()}</div>
+                            <h3 class="news-title">${item.title}</h3>
+                            <p>${item.content.substring(0, 100)}${item.content.length > 100 ? '...' : ''}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading news:', error);
+    }
+}
+                    } else {
+                        const errorData = await response.json();
+                        alert('Error adding news: ' + (errorData.message || response.statusText));
+                    }
+                } catch (error) {
+                    alert('Error adding news: ' + error.message);
                 }
-                saveContent(data);
-                alert('Article saved.');
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsDate').value = '';
-                document.getElementById('newsContent').value = '';
-                if (document.getElementById('newsImageUrl')) document.getElementById('newsImageUrl').value = '';
-                if (document.getElementById('contentType')) document.getElementById('contentType').value = 'news';
             } else {
                 alert('Please fill in Title, Date, and Content.');
             }

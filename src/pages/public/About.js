@@ -10,8 +10,8 @@ const About = () => {
   ];
 
   const management = [
-    { name: 'Murekatete Jeannette', position: 'President', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&fit=crop' },
-    { name: '400&h=Bizimungu Emmanuel', position: 'Vice President', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop' },
+    { name: 'Murenzi Abdarah', position: 'President', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&fit=crop' },
+    { name: 'Bizimungu Emmanuel', position: 'Vice President', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop' },
     { name: 'Mugisha Robert', position: 'Technical Director', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop' },
     { name: 'Niyonkuru Patrick', position: 'Team Manager', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop' },
   ];

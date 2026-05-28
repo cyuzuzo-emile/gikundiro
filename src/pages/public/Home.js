@@ -1,28 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Users, Trophy, ArrowRight, Clock, MapPin, ChevronRight, Star, Mail, Play } from 'lucide-react';
+import { Calendar, Trophy, ArrowRight, Clock, MapPin, ChevronRight, Mail } from 'lucide-react';
+import { playersAPI, matchesAPI, newsAPI } from '../../services/api';
 
 const Home = () => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [upcomingMatches, setUpcomingMatches] = useState([]);
+  const [featuredPlayers, setFeaturedPlayers] = useState([]);
+  const [latestNews, setLatestNews] = useState([]);
 
-  const upcomingMatches = [
-    { id: 1, opponent: 'Amazulu FC', date: '2024-03-15', time: '15:00', venue: 'Nyamirambo Stadium', competition: 'Premier League', home: true },
-    { id: 2, opponent: 'Police FC', date: '2024-03-22', time: '18:00', venue: 'Amahoro Stadium', competition: 'Premier League', home: false },
-    { id: 3, opponent: 'APRA FC', date: '2024-03-29', time: '15:00', venue: 'Nyamirambo Stadium', competition: 'Rwanda Cup', home: true },
-  ];
-
-  const featuredPlayers = [
-    { id: 1, name: 'Mugisha Jacques', position: 'Forward', number: 10, nationality: 'Rwanda', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop' },
-    { id: 2, name: 'Hakizimana Emmanuel', position: 'Midfielder', number: 8, nationality: 'Rwanda', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop' },
-    { id: 3, name: 'Niyonkuru Patrick', position: 'Defender', number: 4, nationality: 'Rwanda', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop' },
-    { id: 4, name: 'Mukanzi Claude', position: 'Goalkeeper', number: 1, nationality: 'Rwanda', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop' },
-  ];
-
-  const latestNews = [
-    { id: 1, title: 'Rayon Sports Clinch Historic Victory', date: '2024-03-08', category: 'Match Report', image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&h=400&fit=crop' },
-    { id: 2, title: 'New Signing: Welcome to the Club', date: '2024-03-05', category: 'Transfer', image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop' },
-    { id: 3, title: 'Match Day: Preview vs Amazulu', date: '2024-03-02', category: 'Announcement', image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&h=400&fit=crop' },
-  ];
+  useEffect(() => {
+     const fetchData = async () => {
+       try {
+         const [matchesRes, playersRes, newsRes] = await Promise.all([
+           matchesAPI.getAll(),
+           playersAPI.getAll(),
+           newsAPI.getAll()
+         ]);
+         const matches = matchesRes.data || [];
+         setUpcomingMatches(matches.filter(m => new Date(m.date) >= new Date()).slice(0, 3));
+         setFeaturedPlayers((playersRes.data || []).slice(0, 4));
+         setLatestNews((newsRes.data || []).slice(0, 3));
+       } catch (error) {
+         console.error('Error fetching data:', error);
+       }
+     };
+     fetchData();
+   }, []);
 
   const achievements = [
     { title: 'Rwanda Premier League', count: 4, year: '2010, 2012, 2019, 2023' },
@@ -32,11 +36,11 @@ const Home = () => {
   ];
 
   const sponsors = [
-    { name: 'Rwanda Energy Group', logo: 'https://via.placeholder.com/150x60?text=REG' },
-    { name: 'Bank of Kigali', logo: 'https://via.placeholder.com/150x60?text=BK' },
-    { name: 'Rwanda Air', logo: 'https://via.placeholder.com/150x60?text=Rwanda+Air' },
-    { name: 'Tigo', logo: 'https://via.placeholder.com/150x60?text=Tigo' },
-    { name: 'Coca Cola', logo: 'https://via.placeholder.com/150x60?text=Coca+Cola' },
+    { name: 'Rwanda Energy Group', logo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=60&fit=crop' },
+    { name: 'Bank of Kigali', logo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=60&fit=crop' },
+    { name: 'Rwanda Air', logo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=60&fit=crop' },
+    { name: 'Tigo', logo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=60&fit=crop' },
+    { name: 'Coca Cola', logo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=60&fit=crop' },
   ];
 
   const handleNewsletterSubmit = (e) => {
@@ -79,7 +83,7 @@ const Home = () => {
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-white mb-6">
               RAYON <span className="gradient-text">SPORTS</span> FC
             </h1>
-            <p className="text-xl md:text-2xl font-body text-gray-300 mb-8">
+            <p className="text-xl md:text-2xl font-body text-gray-300 mb-9">
               Pride of Rwanda, Glory in Africa
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

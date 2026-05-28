@@ -1,31 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, ChevronRight, Trophy, TrendingUp } from 'lucide-react';
+import { matchesAPI, playersAPI } from '../../services/api';
 
 const Matches = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [upcomingMatches, setUpcomingMatches] = useState([]);
+  const [pastMatches, setPastMatches] = useState([]);
+  const [playerStats, setPlayerStats] = useState([]);
 
-  const upcomingMatches = [
-    { id: 1, opponent: 'Amazulu FC', date: '2024-03-15', time: '15:00', venue: 'Nyamirambo Stadium', competition: 'Premier League', home: true, ticketPrice: 5000 },
-    { id: 2, opponent: 'Police FC', date: '2024-03-22', time: '18:00', venue: 'Amahoro Stadium', competition: 'Premier League', home: false, ticketPrice: 3000 },
-    { id: 3, opponent: 'APRA FC', date: '2024-03-29', time: '15:00', venue: 'Nyamirambo Stadium', competition: 'Rwanda Cup', home: true, ticketPrice: 4000 },
-    { id: 4, opponent: 'Espoir FC', date: '2024-04-05', time: '15:00', venue: 'Rwamagana Stadium', competition: 'Premier League', home: false, ticketPrice: 2500 },
-  ];
-
-  const pastMatches = [
-    { id: 1, opponent: 'Bugesera FC', date: '2024-03-01', venue: 'Nyamirambo Stadium', competition: 'Premier League', home: true, homeScore: 3, awayScore: 1, status: 'completed' },
-    { id: 2, opponent: 'Musanze FC', date: '2024-02-24', venue: 'Musanze Stadium', competition: 'Premier League', home: false, homeScore: 1, awayScore: 2, status: 'completed' },
-    { id: 3, opponent: 'Kirehe FC', date: '2024-02-17', venue: 'Nyamirambo Stadium', competition: 'Rwanda Cup', home: true, homeScore: 2, awayScore: 0, status: 'completed' },
-    { id: 4, opponent: 'Rwanda Revenue Authority', date: '2024-02-10', venue: 'Kigali Stadium', competition: 'Premier League', home: true, homeScore: 0, awayScore: 0, status: 'completed' },
-    { id: 5, opponent: 'Armée Patriotique Rwandaise', date: '2024-02-03', venue: 'Amahoro Stadium', competition: 'Premier League', home: false, homeScore: 1, awayScore: 3, status: 'completed' },
-  ];
-
-  const playerStats = [
-    { name: 'Mugisha Jacques', position: 'Forward', goals: 12, assists: 8, appearances: 18 },
-    { name: 'Habineza Emmanuel', position: 'Forward', goals: 8, assists: 5, appearances: 17 },
-    { name: 'Hakizimana Emmanuel', position: 'Midfielder', goals: 5, assists: 7, appearances: 18 },
-    { name: 'Niyonkuru Patrick', position: 'Defender', goals: 2, assists: 1, appearances: 16 },
-    { name: 'Mugabo Pierre', position: 'Forward', goals: 4, assists: 3, appearances: 12 },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [matchesRes, playersRes] = await Promise.all([
+          matchesAPI.getAll(),
+          playersAPI.getAll()
+        ]);
+        const matches = matchesRes.data || [];
+        setUpcomingMatches(matches.filter(m => new Date(m.date) >= new Date()).slice(0, 10));
+        setPastMatches(matches.filter(m => new Date(m.date) < new Date()).slice(0, 10));
+        setPlayerStats((playersRes.data || []).map(p => ({
+          name: p.name,
+          position: p.position,
+          goals: p.goals || 0,
+          assists: p.assists || 0,
+          appearances: p.appearances || 0
+        })).sort((a, b) => b.goals - a.goals).slice(0, 5));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen pt-20">

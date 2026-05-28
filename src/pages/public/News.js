@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, User, ArrowRight, ChevronRight, Search } from 'lucide-react';
+import { newsAPI } from '../../services/api';
 
 const News = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [news, setNews] = useState([]);
 
   const categories = ['all', 'Announcement', 'Match Report', 'Transfer', 'General'];
 
-  const news = [
-    { id: 1, title: 'Rayon Sports Clinch Historic Victory in Dramatic Fashion', category: 'Match Report', date: '2024-03-08', author: 'Sports Desk', image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=400&fit=crop', excerpt: 'In an electrifying match at Nyamirambo Stadium, Rayon Sports FC secured a memorable victory...' },
-    { id: 2, title: 'New Signing: Welcome to the Club - Emmanuel Hakizimana', category: 'Transfer', date: '2024-03-05', author: 'Transfer News', image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&h=400&fit=crop', excerpt: 'We are delighted to announce the signing of Emmanuel Hakizimana from rivals...' },
-    { id: 3, title: 'Match Day Preview: Rayon Sports vs Amazulu FC', category: 'Announcement', date: '2024-03-02', author: 'Match Preview', image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&h=400&fit=crop', excerpt: 'All eyes will be on Nyamirambo Stadium this Saturday as we face Amazulu FC...' },
-    { id: 4, title: 'Club Statement: Youth Development Program Expansion', category: 'General', date: '2024-02-28', author: 'Club Official', image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=800&h=400&fit=crop', excerpt: 'Rayon Sports FC is proud to announce the expansion of our youth development program...' },
-    { id: 5, title: 'Player of the Month: Jacques Mugisha', category: 'Announcement', date: '2024-02-25', author: 'Awards Desk', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop', excerpt: 'Congratulations to Jacques Mugisha for being named Player of the Month...' },
-    { id: 6, title: 'Match Report: Rayon Sports 3-1 Bugesera FC', category: 'Match Report', date: '2024-02-20', author: 'Match Reporter', image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&h=400&fit=crop', excerpt: 'A comprehensive victory as Rayon Sports FC dominated proceedings from start to finish...' },
-  ];
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await newsAPI.getAll();
+        setNews(response.data || []);
+      } catch (error) {
+        console.error('Error fetching news:', error);
+      }
+    };
+    fetchNews();
+  }, []);
 
   const filteredNews = news.filter(article => {
     const matchesCategory = activeCategory === 'all' || article.category === activeCategory;

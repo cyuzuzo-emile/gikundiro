@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Search, Star, Plus, Minus, Trash2, X, CreditCard, CheckCircle, Package } from 'lucide-react';
-import { ordersAPI } from '../../services/api';
+import { ShoppingCart, Star, Plus, Minus, Trash2, X, CreditCard, CheckCircle, Package } from 'lucide-react';
+import { ordersAPI, shopAPI } from '../../services/api';
 
 const Shop = () => {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -22,48 +22,51 @@ const Shop = () => {
     notes: ''
   });
 
-  // Load product images from localStorage
-  useEffect(() => {
-    const images = {};
-    products.forEach(product => {
-      const stored = localStorage.getItem(`product_${product.id}`);
-      if (stored) images[product.id] = stored;
-    });
-    setProductImages(images);
-  }, []);
-
-  // Refresh images when category changes
-  useEffect(() => {
-    const images = {};
-    products.forEach(product => {
-      const stored = localStorage.getItem(`product_${product.id}`);
-      if (stored) images[product.id] = stored;
-    });
-    setProductImages(images);
-  }, [activeCategory]);
-
   const categories = ['all', 'Jerseys', 'Scarves', 'Hats', 'Accessories', 'Tickets'];
 
-  const products = [
-    { id: 1, name: '2024 Home Jersey', category: 'Jerseys', price: 25000, image: 'https://share.google/tA2Lahwhd03dAYPLx', rating: 4.8, inStock: true },
-    { id: 2, name: '2024 Away Jersey', category: 'Jerseys', price: 25000, image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=400&fit=crop', rating: 4.6, inStock: true },
-    { id: 3, name: 'Official Scarf', category: 'Scarves', price: 8000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.9, inStock: true },
-    { id: 4, name: 'Club Cap', category: 'Hats', price: 5000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.5, inStock: true },
-    { id: 5, name: 'Flag Banner', category: 'Accessories', price: 12000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.7, inStock: true },
-    { id: 6, name: 'Season Ticket 2024', category: 'Tickets', price: 150000, image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&h=400&fit=crop', rating: 5.0, inStock: true },
-    { id: 7, name: 'Training Kit', category: 'Jerseys', price: 18000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.4, inStock: true },
-    { id: 8, name: 'Retro Jersey 2010', category: 'Jerseys', price: 30000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.9, inStock: false },
-  ];
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await shopAPI.getProducts();
+        setProducts(response.data || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([
+          { _id: 1, name: '2024 Home Jersey', category: 'Jerseys', price: 25000, image: 'https://share.google/tA2Lahwhd03dAYPLx', rating: 4.8, inStock: true },
+          { _id: 2, name: '2024 Away Jersey', category: 'Jerseys', price: 25000, image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=400&fit=crop', rating: 4.6, inStock: true },
+          { _id: 3, name: 'Official Scarf', category: 'Scarves', price: 8000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.9, inStock: true },
+          { _id: 4, name: 'Club Cap', category: 'Hats', price: 5000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.5, inStock: true },
+          { _id: 5, name: 'Flag Banner', category: 'Accessories', price: 12000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.7, inStock: true },
+          { _id: 6, name: 'Season Ticket 2024', category: 'Tickets', price: 150000, image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&h=400&fit=crop', rating: 5.0, inStock: true },
+          { _id: 7, name: 'Training Kit', category: 'Jerseys', price: 18000, image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.4, inStock: true },
+          { _id: 8, name: 'Retro Jersey 2010', category: 'Jerseys', price: 30000, image: 'https://images.unsplash.com/photo-1517446787929-bc90951d0974?w=400&h=400&fit=crop', rating: 4.9, inStock: false },
+        ]);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+useEffect(() => {
+    const images = {};
+    products.forEach(product => {
+      const stored = localStorage.getItem(`product_${product._id || product.id}`);
+      if (stored) images[product._id || product.id] = stored;
+    });
+    setProductImages(images);
+  }, [products]);
 
   const filteredProducts = activeCategory === 'all' 
     ? products 
     : products.filter(p => p.category === activeCategory);
 
   const addToCart = (product) => {
-    const existingItem = cart.find(item => item.id === product.id);
+    const productId = product._id || product.id;
+    const existingItem = cart.find(item => (item._id || item.id) === productId);
     if (existingItem) {
       setCart(cart.map(item => 
-        item.id === product.id 
+        (item._id || item.id) === productId 
           ? { ...item, quantity: item.quantity + 1 }
           : item
       ));
@@ -73,12 +76,12 @@ const Shop = () => {
   };
 
   const removeFromCart = (productId) => {
-    setCart(cart.filter(item => item.id !== productId));
+    setCart(cart.filter(item => (item._id || item.id) !== productId));
   };
 
   const updateQuantity = (productId, delta) => {
     setCart(cart.map(item => {
-      if (item.id === productId) {
+      if ((item._id || item.id) === productId) {
         return { ...item, quantity: Math.max(1, item.quantity + delta) };
       }
       return item;
@@ -195,10 +198,10 @@ const Shop = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="card group border border-gray-200">
+              <div key={product._id || product.id} className="card group border border-gray-200">
                 <div className="relative h-64 overflow-hidden">
                   <img 
-                    src={productImages[product.id] || product.image} 
+                    src={productImages[product._id || product.id] || product.image} 
                     alt={product.name} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />

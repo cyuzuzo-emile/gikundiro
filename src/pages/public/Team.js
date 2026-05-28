@@ -1,66 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Filter, User } from 'lucide-react';
-
-// Default player images from local folder
-const defaultPlayerImages = {
-  1: '/images/olivie.jpeg',
-  2: '/images/fall.jpeg',
-  3: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-  4: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop',
-  5: '/images/basane.jpeg',
-  6: '/images/kevin.jpg',
-  7: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop',
-  8: '/images/murer.jpeg',
-  9: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-  10: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop',
-  11: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
-  12: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop',
-};
-
-// Get player image from localStorage or use default
-const getPlayerImage = (playerId, fallbackImage) => {
-  const stored = localStorage.getItem(`player_image_${playerId}`);
-  return stored || defaultPlayerImages[playerId] || fallbackImage;
-};
+import { Filter } from 'lucide-react';
+import { playersAPI } from '../../services/api';
 
 const Team = () => {
   const [filter, setFilter] = useState('all');
   const [playerImages, setPlayerImages] = useState({});
+  const [players, setPlayers] = useState([]);
 
-  // Load player images from localStorage on mount
   useEffect(() => {
-    const images = {};
-    players.forEach(player => {
-      const stored = localStorage.getItem(`player_image_${player.id}`);
-      if (stored) images[player.id] = stored;
-    });
-    setPlayerImages(images);
+    const fetchData = async () => {
+      try {
+        const response = await playersAPI.getAll();
+        setPlayers(response.data || []);
+      } catch (error) {
+        console.error('Error fetching players:', error);
+      }
+    };
+    fetchData();
   }, []);
 
-  // Refresh images when filter changes (to show newly uploaded images)
   useEffect(() => {
     const images = {};
     players.forEach(player => {
-      const stored = localStorage.getItem(`player_image_${player.id}`);
-      if (stored) images[player.id] = stored;
+      const stored = localStorage.getItem(`player_image_${player._id || player.id}`);
+      if (stored) images[player._id || player.id] = stored;
     });
     setPlayerImages(images);
-  }, [filter]);
-
-  const players = [
-    { id: 1, name: 'Kwizera olivier', position: 'Goalkeeper', number: 1, nationality: 'Rwanda', dob: '1995-03-15', image: '/images/olivie.jpeg', stats: { appearances: 120, cleanSheets: 45 } },
-    { id: 2, name: 'FALL NGAGNE', position: 'Forward', number: 4, nationality: 'Rwanda', dob: '1997-06-22', image: '/images/fall.jpeg', stats: { appearances: 98, goals: 5 } },
-    { id: 3, name: 'Hakizimana Emmanuel', position: 'Midfielder', number: 8, nationality: 'Rwanda', dob: '1998-01-10', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop', stats: { appearances: 85, goals: 12 } },
-    { id: 4, name: 'UMUKIZA Obed', position: 'Defender', number: 10, nationality: 'Rwanda', dob: '1996-08-25', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop', stats: { appearances: 110, goals: 45 } },
-    { id: 5, name: 'BASANE', position: 'Defender', number: 3, nationality: 'Rwanda', dob: '1999-04-18', image: '/images/basane.jpeg', stats: { appearances: 76, goals: 3 } },
-    { id: 6, name: 'KEVIN', position: 'Midfielder', number: 6, nationality: 'Rwanda', dob: '1997-11-30', image: '/images/kevin.jpg', stats: { appearances: 92, goals: 8 } },
-    { id: 7, name: 'emely bayisnge', position: 'Forward', number: 11, nationality: 'Rwanda', dob: '2000-02-14', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop', stats: { appearances: 45, goals: 15 } },
-    { id: 8, name: 'Ntawunguka Jean', position: 'Goalkeeper', number: 22, nationality: 'Rwanda', dob: '2001-07-08', image: '/images/murer.jpeg', stats: { appearances: 25, cleanSheets: 10 } },
-    { id: 9, name: 'Rwasa Bienvenue', position: 'Defender', number: 5, nationality: 'Rwanda', dob: '1998-12-03', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop', stats: { appearances: 88, goals: 2 } },
-    { id: 10, name: 'Habarugira Oscar', position: 'Midfielder', number: 7, nationality: 'Rwanda', dob: '1999-09-20', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop', stats: { appearances: 70, goals: 10 } },
-    { id: 11, name: 'Habineza Emmanuel', position: 'Forward', number: 9, nationality: 'Rwanda', dob: '1996-05-12', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop', stats: { appearances: 95, goals: 32 } },
-    { id: 12, name: 'Mutesasira John', position: 'Defender', number: 2, nationality: 'Rwanda', dob: '2000-01-25', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop', stats: { appearances: 55, goals: 1 } },
-  ];
+  }, [players]);
 
   const coachingStaff = [
     { name: 'Mucyo Jean Pierre', position: 'Head Coach', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop' },
@@ -134,10 +100,10 @@ const Team = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredPlayers.map((player) => (
-              <div key={player.id} className="card group">
+              <div key={player._id || player.id} className="card group">
                 <div className="relative h-72 overflow-hidden">
                   <img 
-                    src={playerImages[player.id] || player.image} 
+                    src={playerImages[player._id || player.id] || player.image || 'https://via.placeholder.com/400x400?text=Player'} 
                     alt={player.name} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => {

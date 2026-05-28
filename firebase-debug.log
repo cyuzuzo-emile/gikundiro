@@ -1,0 +1,78 @@
+[debug] [2026-05-27T14:20:37.714Z] ----------------------------------------------------------------------
+[debug] [2026-05-27T14:20:37.721Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ACCOUNTING\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2026-05-27T14:20:37.721Z] CLI Version:   15.18.0
+[debug] [2026-05-27T14:20:37.721Z] Platform:      win32
+[debug] [2026-05-27T14:20:37.721Z] Node Version:  v22.20.0
+[debug] [2026-05-27T14:20:37.721Z] Time:          Wed May 27 2026 16:20:37 GMT+0200 (Central Africa Time)
+[debug] [2026-05-27T14:20:37.722Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\ACCOUNTING\OneDrive\Desktop\gikundiro\client
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-05-27T14:45:40.362Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-05-27T14:45:40.365Z] > authorizing via signed-in user (cyuzuzoemile8@gmail.com)
+[debug] [2026-05-27T14:45:40.377Z] Checked if tokens are valid: false, expires at: 1779892711298
+[debug] [2026-05-27T14:45:40.378Z] Checked if tokens are valid: false, expires at: 1779892711298
+[debug] [2026-05-27T14:45:40.381Z] > refreshing access token with scopes: []
+[debug] [2026-05-27T14:45:40.400Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-05-27T14:45:40.400Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-05-27T14:45:42.839Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-05-27T14:45:42.840Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-05-27T14:45:42.869Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/rayon-sport [none]
+[debug] [2026-05-27T14:45:45.571Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/rayon-sport 200
+[debug] [2026-05-27T14:45:45.571Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/rayon-sport {"projectId":"rayon-sport","projectNumber":"534180065737","displayName":"rayon-sport","name":"projects/rayon-sport","resources":{"hostingSite":"rayon-sport"},"state":"ACTIVE","etag":"1_dcabd0fb-1362-4d63-b611-a98d23b8de7a"}
+[info] i  Using project rayon-sport (rayon-sport) . 
+[info] 
+=== Hosting Setup
+[debug] [2026-05-27T14:46:14.589Z] Checked if tokens are valid: true, expires at: 1779896741841
+[debug] [2026-05-27T14:46:14.589Z] Checked if tokens are valid: true, expires at: 1779896741841
+[debug] [2026-05-27T14:46:14.591Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/rayon-sport [none]
+[debug] [2026-05-27T14:46:18.070Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/rayon-sport 200
+[debug] [2026-05-27T14:46:18.071Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/rayon-sport {"projectId":"rayon-sport","projectNumber":"534180065737","displayName":"rayon-sport","name":"projects/rayon-sport","resources":{"hostingSite":"rayon-sport"},"state":"ACTIVE","etag":"1_dcabd0fb-1362-4d63-b611-a98d23b8de7a"}
+[info] 
+[info] Your public directory is the folder (relative to your project directory) that
+[info] will contain Hosting assets to be uploaded with firebase deploy. If you
+[info] have a build process for your assets, use your build's output directory.
+[info] 
+[info] 
+[info] i  Detected a .git folder at C:\Users\ACCOUNTING\OneDrive\Desktop\gikundiro\client 
+[info] i  Authorizing with GitHub to upload your service account to a GitHub repository's secrets store. 
+[info] 
+[info] Visit this URL on this device to log in:
+[info] https://github.com/login/oauth/authorize?client_id=89cf50f02ac6aaed3484&state=163290547&redirect_uri=http%3A%2F%2Flocalhost%3A9005&scope=read%3Auser%20repo%20public_repo
+[info] 
+[info] Waiting for authentication...
+[debug] [2026-05-27T14:47:27.645Z] >>> [apiv2][query] POST https://github.com/login/oauth/access_token [none]
+[debug] [2026-05-27T14:47:27.648Z] >>> [apiv2][body] POST https://github.com/login/oauth/access_token [stream]
+[debug] [2026-05-27T14:47:33.926Z] <<< [apiv2][status] POST https://github.com/login/oauth/access_token 200
+[debug] [2026-05-27T14:47:33.927Z] <<< [apiv2][body] POST https://github.com/login/oauth/access_token {"access_token":"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","token_type":"bearer","scope":"read:user,repo"}
+[debug] [2026-05-27T14:47:33.996Z] >>> [apiv2][query] GET https://api.github.com/user [none]
+[debug] [2026-05-27T14:47:38.314Z] <<< [apiv2][status] GET https://api.github.com/user 200
+[debug] [2026-05-27T14:47:38.324Z] <<< [apiv2][body] GET https://api.github.com/user {"login":"cyuzuzo-emile","id":205318886,"node_id":"U_kgDODDzq5g","avatar_url":"https://avatars.githubusercontent.com/u/205318886?v=4","gravatar_id":"","url":"https://api.github.com/users/cyuzuzo-emile","html_url":"https://github.com/cyuzuzo-emile","followers_url":"https://api.github.com/users/cyuzuzo-emile/followers","following_url":"https://api.github.com/users/cyuzuzo-emile/following{/other_user}","gists_url":"https://api.github.com/users/cyuzuzo-emile/gists{/gist_id}","starred_url":"https://api.github.com/users/cyuzuzo-emile/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/cyuzuzo-emile/subscriptions","organizations_url":"https://api.github.com/users/cyuzuzo-emile/orgs","repos_url":"https://api.github.com/users/cyuzuzo-emile/repos","events_url":"https://api.github.com/users/cyuzuzo-emile/events{/privacy}","received_events_url":"https://api.github.com/users/cyuzuzo-emile/received_events","type":"User","user_view_type":"private","site_admin":false,"name":null,"company":null,"blog":"","location":null,"email":null,"hireable":null,"bio":null,"twitter_username":null,"notification_email":null,"public_repos":19,"public_gists":0,"followers":0,"following":1,"created_at":"2025-03-28T13:09:54Z","updated_at":"2026-05-20T14:23:43Z","private_gists":0,"total_private_repos":6,"owned_private_repos":6,"disk_usage":76945,"collaborators":0,"two_factor_authentication":false,"plan":{"name":"free","space":976562499,"collaborators":0,"private_repos":10000}}
+[info] 
+[info] +  Success! Logged into GitHub as cyuzuzo-emile 
+[info] 
+[debug] [2026-05-27T15:02:05.293Z] >>> [apiv2][query] GET https://api.github.com/repos/firebase deploy/actions/secrets/public-key type=owner
+[debug] [2026-05-27T15:02:08.032Z] <<< [apiv2][status] GET https://api.github.com/repos/firebase deploy/actions/secrets/public-key 404
+[debug] [2026-05-27T15:02:08.033Z] <<< [apiv2][body] GET https://api.github.com/repos/firebase deploy/actions/secrets/public-key {"message":"Not Found","documentation_url":"https://docs.github.com/rest","status":"404"}
+[info] 
+[info] 
+[error] !  The provided authorization cannot be used with this repository. If this repository is in an organization, did you remember to grant access? 
+[info] 
+[info] i  Action required: Visit this URL to ensure access has been granted to the appropriate organization(s) for the Firebase CLI GitHub OAuth App: 
+[info] https://github.com/settings/connections/applications/89cf50f02ac6aaed3484
+[info] 

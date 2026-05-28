@@ -47,12 +47,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    const { token, user: userInfo } = response.data;
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(userInfo);
-    return userInfo;
+    try {
+      const response = await api.post('/auth/login', credentials);
+      const { token, user: userInfo } = response.data;
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(userInfo);
+      return userInfo;
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
+      throw error;
+    }
   };
 
   const logout = () => {
