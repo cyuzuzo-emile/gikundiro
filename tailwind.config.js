@@ -18,11 +18,11 @@ module.exports = {
           light: '#1976D2',
           dark: '#0D47A1'
         },
-        accent: '#1E3A5F',
+        accent: '#FFD700',
         surface: {
-          DEFAULT: '#F5F5F5',
-          light: '#FFFFFF',
-          dark: '#E0E0E0'
+          DEFAULT: '#1E2A3A',
+          light: '#253447',
+          dark: '#141E2B'
         },
         success: '#4CAF50',
         error: '#F44336',

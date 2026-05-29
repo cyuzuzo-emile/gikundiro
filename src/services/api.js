@@ -39,8 +39,8 @@ export const authAPI = {
 export const playersAPI = {
   getAll: () => api.get('/players'),
   getById: (id) => api.get(`/players/${id}`),
-  create: (data) => api.post('/players', data),
-  update: (id, data) => api.put(`/players/${id}`, data),
+  create: (data) => api.post('/players', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id, data) => api.put(`/players/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id) => api.delete(`/players/${id}`)
 };
 
@@ -59,8 +59,8 @@ export const matchesAPI = {
 export const newsAPI = {
   getAll: () => api.get('/news'),
   getById: (id) => api.get(`/news/${id}`),
-  create: (data) => api.post('/news', data),
-  update: (id, data) => api.put(`/news/${id}`, data),
+  create: (data) => api.post('/news', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id, data) => api.put(`/news/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id) => api.delete(`/news/${id}`)
 };
 

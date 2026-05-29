@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Filter } from 'lucide-react';
 import { playersAPI } from '../../services/api';
 
+const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+
 const Team = () => {
   const [filter, setFilter] = useState('all');
-  const [playerImages, setPlayerImages] = useState({});
   const [players, setPlayers] = useState([]);
 
   useEffect(() => {
@@ -18,15 +19,6 @@ const Team = () => {
     };
     fetchData();
   }, []);
-
-  useEffect(() => {
-    const images = {};
-    players.forEach(player => {
-      const stored = localStorage.getItem(`player_image_${player._id || player.id}`);
-      if (stored) images[player._id || player.id] = stored;
-    });
-    setPlayerImages(images);
-  }, [players]);
 
   const coachingStaff = [
     { name: 'Mucyo Jean Pierre', position: 'Head Coach', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop' },
@@ -100,36 +92,36 @@ const Team = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredPlayers.map((player) => (
-              <div key={player._id || player.id} className="card group">
+              <div key={player.id} className="card group">
                 <div className="relative h-72 overflow-hidden">
                   <img 
-                    src={playerImages[player._id || player.id] || player.image || 'https://via.placeholder.com/400x400?text=Player'} 
+                    src={player.photo ? `${API_URL}${player.photo}` : 'https://via.placeholder.com/400x400?text=Player'} 
                     alt={player.name} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/400x400?text=Player';
-                    }}
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400x400?text=Player'; }}
                   />
                   <div className={`absolute top-4 right-4 w-10 h-10 ${getPositionColor(player.position)} rounded-full flex items-center justify-center text-white font-bold`}>
-                    {player.number}
+                    {player.jersey_number}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
                 </div>
                 <div className="p-4">
                   <h3 className="text-xl font-heading font-bold text-white text-center">{player.name}</h3>
-                  <p className={`text-center text-sm font-medium mt-1 ${getPositionColor(player.position)} text-white py-1 px-3 rounded-full inline-block`}>
-                    {player.position}
-                  </p>
+                  <div className="flex justify-center mt-2">
+                    <span className={`text-center text-sm font-medium ${getPositionColor(player.position)} text-white py-1 px-3 rounded-full`}>
+                      {player.position}
+                    </span>
+                  </div>
                   <div className="flex items-center justify-center mt-3 text-gray-400 text-sm">
                     <span className="mr-1">🇷🇼</span> {player.nationality}
                   </div>
                   <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-800">
                     <div className="text-center">
-                      <span className="text-lg font-bold text-white">{player.stats.appearances}</span>
+                      <span className="text-lg font-bold text-white">{player.appearances}</span>
                       <p className="text-xs text-gray-500">Appearances</p>
                     </div>
                     <div className="text-center">
-                      <span className="text-lg font-bold text-white">{player.stats.goals || player.stats.cleanSheets || 0}</span>
+                      <span className="text-lg font-bold text-white">{player.position === 'Goalkeeper' ? player.clean_sheets : player.goals}</span>
                       <p className="text-xs text-gray-500">{player.position === 'Goalkeeper' ? 'Clean Sheets' : 'Goals'}</p>
                     </div>
                   </div>

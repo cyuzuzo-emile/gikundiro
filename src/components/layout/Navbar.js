@@ -99,7 +99,7 @@ const Navbar = () => {
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                   location.pathname === link.path
                     ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:text-primary hover:bg-gray-100'
+                    : isScrolled ? 'text-gray-800 hover:text-primary hover:bg-gray-100' : 'text-white hover:text-accent hover:bg-white/10'
                 }`}
               >
                 {link.name}
@@ -117,21 +117,21 @@ const Navbar = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search..."
-                  className="w-48 bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-primary"
+                  className={`w-48 border rounded-lg px-4 py-2 focus:outline-none focus:border-primary ${isScrolled ? 'bg-white border-gray-300 text-gray-800' : 'bg-white/10 border-white/30 text-white placeholder-white/60'}`}
                   autoFocus
                 />
                 <button type="button" onClick={() => setShowSearch(false)} className="absolute right-2 top-1/2 -translate-y-1/2">
-                  <X className="w-4 h-4 text-gray-500" />
+                  <X className={`w-4 h-4 ${isScrolled ? 'text-gray-500' : 'text-white'}`} />
                 </button>
               </form>
             ) : (
-              <button onClick={() => setShowSearch(true)} className="p-2 text-gray-700 hover:text-primary transition-colors">
+              <button onClick={() => setShowSearch(true)} className={`p-2 transition-colors ${isScrolled ? 'text-gray-700 hover:text-primary' : 'text-white hover:text-accent'}`}>
                 <Search className="w-5 h-5" />
               </button>
             )}
 
             {/* Theme Toggle */}
-            <button onClick={toggleTheme} className="p-2 text-gray-700 hover:text-primary transition-colors">
+            <button onClick={toggleTheme} className={`p-2 transition-colors ${isScrolled ? 'text-gray-700 hover:text-primary' : 'text-white hover:text-accent'}`}>
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
@@ -207,7 +207,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 text-gray-700"
+            className={`lg:hidden p-2 transition-colors ${isScrolled ? 'text-gray-700' : 'text-white'}`}
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
