@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import SplashScreen from './components/SplashScreen';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -13,6 +14,7 @@ import About from './pages/public/About';
 import Team from './pages/public/Team';
 import Matches from './pages/public/Matches';
 import News from './pages/public/News';
+import NewsDetail from './pages/public/NewsDetail';
 import Gallery from './pages/public/Gallery';
 import Shop from './pages/public/Shop';
 import Contact from './pages/public/Contact';
@@ -32,6 +34,8 @@ import ManageFans from './pages/admin/ManageFans';
 import ManageTickets from './pages/admin/ManageTickets';
 import ManageImages from './pages/admin/ManageImages';
 import ManageOrders from './pages/admin/ManageOrders';
+import ManageShop from './pages/admin/ManageShop';
+import ManageStaff from './pages/admin/ManageStaff';
 
 // Auth Pages
 import Login from './pages/auth/Login';
@@ -63,7 +67,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 // Public Layout
 const PublicLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-body">
       <Navbar />
       <main>{children}</main>
       <Footer />
@@ -74,16 +78,20 @@ const PublicLayout = ({ children }) => {
 // Auth Layout
 const AuthLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+    <div className="min-h-screen bg-body flex items-center justify-center">
       {children}
     </div>
   );
 };
 
 function App() {
+  const [splashDone, setSplashDone] = useState(false);
+  const handleSplashDone = useCallback(() => setSplashDone(true), []);
+
   return (
     <ThemeProvider>
       <AuthProvider>
+        {!splashDone && <SplashScreen onDone={handleSplashDone} />}
         <Router>
           <Routes>
             {/* Public Routes */}
@@ -92,6 +100,7 @@ function App() {
             <Route path="/team" element={<PublicLayout><Team /></PublicLayout>} />
             <Route path="/matches" element={<PublicLayout><Matches /></PublicLayout>} />
             <Route path="/news" element={<PublicLayout><News /></PublicLayout>} />
+            <Route path="/news/:id" element={<PublicLayout><NewsDetail /></PublicLayout>} />
             <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
             <Route path="/shop" element={<PublicLayout><Shop /></PublicLayout>} />
             <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
@@ -134,6 +143,11 @@ function App() {
                 <PublicLayout><ManagePlayers /></PublicLayout>
               </ProtectedRoute>
             } />
+            <Route path="/admin/staff" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PublicLayout><ManageStaff /></PublicLayout>
+              </ProtectedRoute>
+            } />
             <Route path="/admin/matches" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <PublicLayout><ManageMatches /></PublicLayout>
@@ -162,6 +176,11 @@ function App() {
             <Route path="/admin/orders" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <PublicLayout><ManageOrders /></PublicLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/shop" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PublicLayout><ManageShop /></PublicLayout>
               </ProtectedRoute>
             } />
             

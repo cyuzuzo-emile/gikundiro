@@ -51,9 +51,9 @@ const ManageOrders = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input type="text" placeholder="Search by order number, name or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-field pl-10" />
+              <input type="text" placeholder="Search by order number, name or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-field-light pl-10" />
             </div>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-field md:w-48">
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-field-light md:w-48">
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
               <option value="processing">Processing</option>

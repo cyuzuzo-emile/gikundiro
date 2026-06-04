@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, X, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, X, Calendar, Upload } from 'lucide-react';
 import { matchesAPI } from '../../services/api';
 
-const empty = { opponent: '', date: '', time: '', venue: '', competition: '', home_or_away: 'Home', status: 'Scheduled', home_score: '', away_score: '' };
+const empty = { opponent: '', date: '', time: '', venue: '', competition: '', home_or_away: 'Home', status: 'Scheduled', home_score: '', away_score: '', opponent_logo: null, rayon_logo: null };
 
 const ManageMatches = () => {
   const [matches, setMatches] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState(empty);
+  const [opponentLogoFile, setOpponentLogoFile] = useState(null);
+  const [rayonLogoFile, setRayonLogoFile] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -19,12 +21,29 @@ const ManageMatches = () => {
     finally { setLoading(false); }
   };
 
+  const buildFormData = () => {
+    const fd = new FormData();
+    fd.append('opponent', formData.opponent);
+    fd.append('date', formData.date);
+    fd.append('time', formData.time);
+    fd.append('venue', formData.venue);
+    fd.append('competition', formData.competition);
+    fd.append('home_or_away', formData.home_or_away);
+    fd.append('status', formData.status);
+    if (formData.home_score !== '') fd.append('home_score', formData.home_score);
+    if (formData.away_score !== '') fd.append('away_score', formData.away_score);
+    if (opponentLogoFile) fd.append('opponent_logo', opponentLogoFile);
+    if (rayonLogoFile) fd.append('rayon_logo', rayonLogoFile);
+    return fd;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (formData.id) { await matchesAPI.update(formData.id, formData); }
-      else { await matchesAPI.create(formData); }
-      fetchMatches(); setShowModal(false); setFormData(empty);
+      const data = buildFormData();
+      if (formData.id) { await matchesAPI.update(formData.id, data); }
+      else { await matchesAPI.create(data); }
+      fetchMatches(); setShowModal(false); setFormData(empty); setOpponentLogoFile(null); setRayonLogoFile(null);
     } catch (e) { alert(e.response?.data?.message || 'Error saving match'); }
   };
 
@@ -80,7 +99,13 @@ const ManageMatches = () => {
                         <td className="px-6 py-4 text-white">
                           <div className="flex items-center"><Calendar className="w-4 h-4 mr-2 text-gray-400" />{new Date(match.date).toLocaleDateString()}</div>
                         </td>
-                        <td className="px-6 py-4 text-white font-medium">{match.home_or_away === 'Home' ? '🔵' : '🟢'} {match.opponent}</td>
+                        <td className="px-6 py-4 text-white font-medium">
+                          <div className="flex items-center gap-3">
+                            {match.rayon_logo && <img src={match.rayon_logo} alt="Rayon FC" className="w-8 h-8 object-contain" />}
+                            {match.opponent_logo && <img src={match.opponent_logo} alt={match.opponent} className="w-8 h-8 object-contain" />}
+                            <span>{match.home_or_away === 'Home' ? '🔵' : '🟢'} {match.opponent}</span>
+                          </div>
+                        </td>
                         <td className="px-6 py-4 text-gray-400">{match.venue}</td>
                         <td className="px-6 py-4 text-gray-400">{match.competition}</td>
                         <td className="px-6 py-4 text-center">
@@ -90,7 +115,7 @@ const ManageMatches = () => {
                           <span className={`px-2 py-1 text-xs rounded-full ${match.status === 'Completed' ? 'bg-gray-500/20 text-gray-400' : match.status === 'Live' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>{match.status}</span>
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <button onClick={() => { setFormData({ ...match, date: match.date?.split('T')[0] }); setShowModal(true); }} className="text-secondary hover:text-accent mr-3"><Edit className="w-5 h-5" /></button>
+                          <button onClick={() => { setFormData({ ...match, date: match.date?.split('T')[0] }); setOpponentLogoFile(null); setRayonLogoFile(null); setShowModal(true); }} className="text-secondary hover:text-accent mr-3"><Edit className="w-5 h-5" /></button>
                           <button onClick={() => handleDelete(match.id)} className="text-red-500 hover:text-red-400"><Trash2 className="w-5 h-5" /></button>
                         </td>
                       </tr>
@@ -114,6 +139,30 @@ const ManageMatches = () => {
               <div>
                 <label className="block text-gray-400 mb-2">Opponent</label>
                 <input type="text" value={formData.opponent} onChange={(e) => setFormData({ ...formData, opponent: e.target.value })} className="input-field" required />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-400 mb-2">Rayon FC Logo</label>
+                  <label className="flex items-center px-3 py-2 bg-surface-light rounded-lg cursor-pointer hover:bg-gray-700 transition-colors w-full">
+                    <Upload className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-300 text-xs truncate">{rayonLogoFile ? rayonLogoFile.name : (formData.rayon_logo ? formData.rayon_logo.split('/').pop() : 'Choose file')}</span>
+                    <input type="file" accept="image/*" onChange={(e) => setRayonLogoFile(e.target.files[0] || null)} className="hidden" />
+                  </label>
+                  {!rayonLogoFile && formData.rayon_logo && (
+                    <img src={formData.rayon_logo} alt="Rayon FC" className="mt-2 w-12 h-12 object-contain rounded" />
+                  )}
+                </div>
+                <div>
+                  <label className="block text-gray-400 mb-2">Opponent Logo</label>
+                  <label className="flex items-center px-3 py-2 bg-surface-light rounded-lg cursor-pointer hover:bg-gray-700 transition-colors w-full">
+                    <Upload className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-300 text-xs truncate">{opponentLogoFile ? opponentLogoFile.name : (formData.opponent_logo ? formData.opponent_logo.split('/').pop() : 'Choose file')}</span>
+                    <input type="file" accept="image/*" onChange={(e) => setOpponentLogoFile(e.target.files[0] || null)} className="hidden" />
+                  </label>
+                  {!opponentLogoFile && formData.opponent_logo && (
+                    <img src={formData.opponent_logo} alt="Opponent" className="mt-2 w-12 h-12 object-contain rounded" />
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

@@ -1,31 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Filter } from 'lucide-react';
-import { playersAPI } from '../../services/api';
+import { playersAPI, staffAPI } from '../../services/api';
 
 const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
 const Team = () => {
   const [filter, setFilter] = useState('all');
   const [players, setPlayers] = useState([]);
+  const [coachingStaff, setCoachingStaff] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await playersAPI.getAll();
-        setPlayers(response.data || []);
+        const [playersRes, staffRes] = await Promise.all([
+          playersAPI.getAll(),
+          staffAPI.getAll()
+        ]);
+        setPlayers(playersRes.data || []);
+        setCoachingStaff(staffRes.data || []);
       } catch (error) {
-        console.error('Error fetching players:', error);
+        console.error('Error fetching data:', error);
       }
     };
     fetchData();
   }, []);
-
-  const coachingStaff = [
-    { name: 'Mucyo Jean Pierre', position: 'Head Coach', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop' },
-    { name: 'Bizimungu Alexis', position: 'Assistant Coach', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop' },
-    { name: 'Niyonkuru Jean', position: 'Goalkeeping Coach', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop' },
-    { name: 'Murekatete Aline', position: 'Team Doctor', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop' },
-  ];
 
   const positions = ['all', 'Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
 
@@ -138,11 +136,11 @@ const Team = () => {
           <h2 className="section-title">Coaching Staff</h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-            {coachingStaff.map((staff, index) => (
-              <div key={index} className="card text-center p-6">
+            {coachingStaff.map((staff) => (
+              <div key={staff.id} className="card text-center p-6">
                 <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
                   <img 
-                    src={staff.image} 
+                    src={staff.photo ? `${API_URL}${staff.photo}` : 'https://via.placeholder.com/400x400?text=Staff'} 
                     alt={staff.name} 
                     className="w-full h-full object-cover"
                     onError={(e) => {

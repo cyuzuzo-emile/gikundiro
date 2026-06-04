@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, ArrowRight, ChevronRight, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Calendar, ArrowRight, ChevronRight, Search } from 'lucide-react';
 import { newsAPI } from '../../services/api';
+
+const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
 const News = () => {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -10,21 +13,15 @@ const News = () => {
   const categories = ['all', 'Announcement', 'Match Report', 'Transfer', 'General'];
 
   useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await newsAPI.getAll();
-        setNews(response.data || []);
-      } catch (error) {
-        console.error('Error fetching news:', error);
-      }
-    };
-    fetchNews();
+    newsAPI.getAll()
+      .then(res => setNews(res.data || []))
+      .catch(console.error);
   }, []);
 
   const filteredNews = news.filter(article => {
     const matchesCategory = activeCategory === 'all' || article.category === activeCategory;
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         article.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+                         (article.content || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -36,9 +33,9 @@ const News = () => {
       {/* Hero Section */}
       <section className="relative py-24 bg-surface">
         <div className="absolute inset-0 opacity-20">
-          <img 
-            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=600&fit=crop" 
-            alt="News" 
+          <img
+            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=600&fit=crop"
+            alt="News"
             className="w-full h-full object-cover"
           />
         </div>
@@ -46,7 +43,7 @@ const News = () => {
           <h1 className="text-5xl md:text-6xl font-heading font-bold text-white mb-4">
             Latest <span className="gradient-text">News</span>
           </h1>
-          <p className="text-xl text-gray-400">Stay updated with all the latest from Rayon Sports FC</p>
+          <p className="text-xl text-gray-400">Stay updated with all the latest from Murera FC</p>
         </div>
       </section>
 
@@ -94,9 +91,9 @@ const News = () => {
                   <article className="card group overflow-hidden">
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                       <div className="relative h-64 lg:h-96">
-                        <img 
-                          src={featuredNews.image} 
-                          alt={featuredNews.title} 
+                        <img
+                          src={featuredNews.image ? `${API_URL}${featuredNews.image}` : 'https://via.placeholder.com/800x400'}
+                          alt={featuredNews.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute top-4 left-4">
@@ -108,17 +105,15 @@ const News = () => {
                       <div className="p-8 flex flex-col justify-center">
                         <div className="flex items-center text-gray-400 text-sm mb-4">
                           <Calendar className="w-4 h-4 mr-2" />
-                          {new Date(featuredNews.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                          <User className="w-4 h-4 ml-4 mr-2" />
-                          {featuredNews.author}
+                          {new Date(featuredNews.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                         </div>
                         <h2 className="text-2xl lg:text-3xl font-heading font-bold text-white mb-4 group-hover:text-accent transition-colors">
                           {featuredNews.title}
                         </h2>
-                        <p className="text-gray-400 mb-6">{featuredNews.excerpt}</p>
-                        <button className="inline-flex items-center text-secondary hover:text-accent transition-colors font-medium">
+                        <p className="text-gray-400 mb-6 line-clamp-3">{featuredNews.content}</p>
+                        <Link to={`/news/${featuredNews.id}`} className="inline-flex items-center text-secondary hover:text-accent transition-colors font-medium">
                           Read Full Article <ArrowRight className="w-5 h-5 ml-2" />
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </article>
@@ -130,9 +125,9 @@ const News = () => {
                 {remainingNews.map((article) => (
                   <article key={article.id} className="card group">
                     <div className="relative h-48 overflow-hidden">
-                      <img 
-                        src={article.image} 
-                        alt={article.title} 
+                      <img
+                        src={article.image ? `${API_URL}${article.image}` : 'https://via.placeholder.com/400x200'}
+                        alt={article.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute top-4 left-4">
@@ -144,15 +139,15 @@ const News = () => {
                     <div className="p-6">
                       <div className="flex items-center text-gray-400 text-sm mb-3">
                         <Calendar className="w-4 h-4 mr-2" />
-                        {new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                       <h3 className="text-xl font-heading font-bold text-white mb-3 group-hover:text-accent transition-colors">
                         {article.title}
                       </h3>
-                      <p className="text-gray-400 text-sm mb-4">{article.excerpt}</p>
-                      <button className="inline-flex items-center text-secondary hover:text-accent transition-colors text-sm font-medium">
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">{article.content}</p>
+                      <Link to={`/news/${article.id}`} className="inline-flex items-center text-secondary hover:text-accent transition-colors text-sm font-medium">
                         Read More <ChevronRight className="w-4 h-4 ml-1" />
-                      </button>
+                      </Link>
                     </div>
                   </article>
                 ))}

@@ -44,14 +44,23 @@ export const playersAPI = {
   delete: (id) => api.delete(`/players/${id}`)
 };
 
+// Staff API
+export const staffAPI = {
+  getAll: () => api.get('/staff'),
+  getById: (id) => api.get(`/staff/${id}`),
+  create: (data) => api.post('/staff', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id, data) => api.put(`/staff/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  delete: (id) => api.delete(`/staff/${id}`)
+};
+
 // Matches API
 export const matchesAPI = {
   getAll: () => api.get('/matches'),
   getUpcoming: () => api.get('/matches/upcoming'),
   getPast: () => api.get('/matches/past'),
   getById: (id) => api.get(`/matches/${id}`),
-  create: (data) => api.post('/matches', data),
-  update: (id, data) => api.put(`/matches/${id}`, data),
+  create: (data) => api.post('/matches', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id, data) => api.put(`/matches/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id) => api.delete(`/matches/${id}`)
 };
 
@@ -89,7 +98,8 @@ export const shopAPI = {
   getProductById: (id) => api.get(`/shop/products/${id}`),
   createProduct: (data) => api.post('/shop/products', data),
   updateProduct: (id, data) => api.put(`/shop/products/${id}`, data),
-  deleteProduct: (id) => api.delete(`/shop/products/${id}`)
+  deleteProduct: (id) => api.delete(`/shop/products/${id}`),
+  submitListing: (data) => api.post('/shop/listings', data)
 };
 
 // Orders API

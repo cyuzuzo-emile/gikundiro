@@ -53,18 +53,18 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        
+        {/* Background Image */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-surface-dark to-secondary/30">
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-20 left-10 w-72 h-72 bg-accent/30 rounded-full blur-3xl"></div>
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/30 rounded-full blur-3xl"></div>
           </div>
         </div>
-        
-        {/* Background Image */}
         <div className="absolute inset-0 opacity-30">
-          <img 
-            src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&h=1080&fit=crop" 
-            alt="Stadium" 
+          <img
+            src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&h=1080&fit=crop"
+            alt="Stadium"
             className="w-full h-full object-cover"
           />
         </div>

@@ -66,7 +66,7 @@ const Register = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-surface-dark">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center justify-center mb-8">
             <div className="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center">

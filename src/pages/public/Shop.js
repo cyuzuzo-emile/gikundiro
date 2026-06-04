@@ -6,7 +6,6 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [productImages, setProductImages] = useState({});
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -47,15 +46,6 @@ const Shop = () => {
     };
     fetchProducts();
   }, []);
-
-useEffect(() => {
-    const images = {};
-    products.forEach(product => {
-      const stored = localStorage.getItem(`product_${product._id || product.id}`);
-      if (stored) images[product._id || product.id] = stored;
-    });
-    setProductImages(images);
-  }, [products]);
 
   const filteredProducts = activeCategory === 'all' 
     ? products 
@@ -201,11 +191,11 @@ useEffect(() => {
               <div key={product._id || product.id} className="card group border border-gray-200">
                 <div className="relative h-64 overflow-hidden">
                   <img 
-                    src={productImages[product._id || product.id] || product.image} 
+                    src={product.image} 
                     alt={product.name} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  {!product.inStock && (
+                  {!product.in_stock && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
                       <span className="text-white font-bold text-lg">Out of Stock</span>
                     </div>
@@ -233,10 +223,10 @@ useEffect(() => {
                       RWF {product.price.toLocaleString()}
                     </span>
                     <button 
-                      onClick={() => product.inStock && addToCart(product)}
-                      disabled={!product.inStock}
+                      onClick={() => product.in_stock && addToCart(product)}
+                      disabled={!product.in_stock}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                        product.inStock 
+                        product.in_stock 
                           ? 'bg-primary text-white hover:bg-primary-light'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
@@ -278,7 +268,7 @@ useEffect(() => {
               ) : (
                 <div className="space-y-4">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex items-center bg-gray-50 p-3 rounded-lg">
+                    <div key={item._id || item.id} className="flex items-center bg-gray-50 p-3 rounded-lg">
                       <img 
                         src={item.image} 
                         alt={item.name} 
@@ -289,14 +279,14 @@ useEffect(() => {
                         <p className="text-primary">RWF {item.price.toLocaleString()}</p>
                         <div className="flex items-center mt-2">
                           <button 
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item._id || item.id, -1)}
                             className="p-1 bg-gray-200 rounded hover:bg-gray-300"
                           >
                             <Minus className="w-4 h-4 text-gray-700" />
                           </button>
                           <span className="mx-3 text-gray-700">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item._id || item.id, 1)}
                             className="p-1 bg-gray-200 rounded hover:bg-gray-300"
                           >
                             <Plus className="w-4 h-4 text-gray-700" />
@@ -304,7 +294,7 @@ useEffect(() => {
                         </div>
                       </div>
                       <button 
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item._id || item.id)}
                         className="p-2 text-red-500 hover:text-red-700"
                       >
                         <Trash2 className="w-5 h-5" />
@@ -509,7 +499,7 @@ useEffect(() => {
             
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
               <p className="text-sm text-gray-600">Order Number</p>
-              <p className="text-lg font-bold text-primary">{orderDetails.orderNumber}</p>
+              <p className="text-lg font-bold text-primary">{orderDetails.order_number}</p>
             </div>
 
             <div className="flex items-center justify-center gap-2 text-gray-600 mb-6">

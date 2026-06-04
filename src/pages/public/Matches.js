@@ -112,8 +112,13 @@ const Matches = () => {
                       
                       <div className="flex items-center justify-between lg:justify-start lg:space-x-12">
                         <div className="text-center lg:text-left">
-                          <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto lg:mx-0 bg-primary/20 rounded-full flex items-center justify-center">
-                            <span className="text-2xl lg:text-3xl">🔵</span>
+                          <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto lg:mx-0 bg-primary/20 rounded-full flex items-center justify-center overflow-hidden">
+                            {match.rayon_logo ? (
+                              <img src={match.rayon_logo} alt="Rayon FC" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                            ) : (
+                              <img src="/rayon.jpg" alt="Rayon FC" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                            )}
+                            <span className="text-2xl lg:text-3xl hidden items-center justify-center w-full h-full">🔵</span>
                           </div>
                           <h3 className="mt-2 text-lg font-heading font-bold text-white">Rayon FC</h3>
                         </div>
@@ -123,8 +128,11 @@ const Matches = () => {
                         </div>
                         
                         <div className="text-center lg:text-left">
-                          <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto lg:mx-0 bg-secondary/20 rounded-full flex items-center justify-center">
-                            <span className="text-2xl lg:text-3xl">🟢</span>
+                          <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto lg:mx-0 bg-secondary/20 rounded-full flex items-center justify-center overflow-hidden">
+                            {match.opponent_logo ? (
+                              <img src={match.opponent_logo} alt={match.opponent} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                            ) : null}
+                            <span className={`text-2xl lg:text-3xl items-center justify-center w-full h-full ${match.opponent_logo ? 'hidden' : 'flex'}`}>🟢</span>
                           </div>
                           <h3 className="mt-2 text-lg font-heading font-bold text-white">{match.opponent}</h3>
                         </div>
@@ -170,31 +178,47 @@ const Matches = () => {
               {pastMatches.map((match) => (
                 <div key={match.id} className="card bg-surface-light p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="px-3 py-1 bg-primary text-white text-sm rounded-full">
-                        {match.competition}
-                      </span>
-                      <div className="flex items-center text-gray-400">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-4 lg:mt-0">
-                      <div className="flex items-center space-x-8">
-                        <div className="text-right">
-                          <span className="text-xl font-heading font-bold text-white">Rayon FC</span>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-4">
+                            <span className="px-3 py-1 bg-primary text-white text-sm rounded-full">
+                              {match.competition}
+                            </span>
+                            <div className="flex items-center text-gray-400">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              {new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </div>
+                          </div>
                         </div>
-                        <div className="bg-surface px-4 py-2 rounded-lg">
-                          <span className="text-2xl font-heading font-bold text-accent">
-                            {match.homeScore} - {match.awayScore}
-                          </span>
+                        
+                        <div className="flex items-center justify-between mt-4 lg:mt-0">
+                          <div className="flex items-center space-x-8">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center">
+                                {match.rayon_logo ? (
+                                  <img src={match.rayon_logo} alt="Rayon FC" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                ) : (
+                                  <img src="/rayon.jpg" alt="Rayon FC" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                )}
+                                <span className="text-lg hidden items-center justify-center w-full h-full">🔵</span>
+                              </div>
+                              <span className="text-xl font-heading font-bold text-white">Rayon FC</span>
+                            </div>
+                            <div className="bg-surface px-4 py-2 rounded-lg">
+                              <span className="text-2xl font-heading font-bold text-accent">
+                                {match.homeScore} - {match.awayScore}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary/20 flex items-center justify-center">
+                                {match.opponent_logo ? (
+                                  <img src={match.opponent_logo} alt={match.opponent} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                ) : null}
+                                <span className={`text-lg items-center justify-center w-full h-full ${match.opponent_logo ? 'hidden' : 'flex'}`}>🟢</span>
+                              </div>
+                              <span className="text-xl font-heading font-bold text-white">{match.opponent}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <span className="text-xl font-heading font-bold text-white">{match.opponent}</span>
-                        </div>
-                      </div>
-                    </div>
                     
                     <div className="mt-4 lg:mt-0 lg:ml-4">
                       <button className="btn-outline text-sm">

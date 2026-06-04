@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X, Image } from 'lucide-react';
 import { newsAPI } from '../../services/api';
 
-const empty = { title: '', category: 'General', content: '' };
+const empty = { title: '', category: 'General', content: '', link: '' };
 const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
 const ManageNews = () => {
@@ -36,6 +36,7 @@ const ManageNews = () => {
       fd.append('title', formData.title);
       fd.append('category', formData.category);
       fd.append('content', formData.content);
+      if (formData.link) fd.append('link', formData.link);
       if (imageFile) fd.append('image', imageFile);
 
       if (formData.id) { await newsAPI.update(formData.id, fd); }
@@ -148,7 +149,12 @@ const ManageNews = () => {
               </div>
               <div>
                 <label className="block text-gray-400 mb-2">Content</label>
-                <textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} className="input-field resize-none" rows="6" required></textarea>
+                <textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} className="input-field resize-none" rows="6"></textarea>
+              </div>
+              <div>
+                <label className="block text-gray-400 mb-2">External Link (optional)</label>
+                <input type="url" placeholder="https://..." value={formData.link || ''} onChange={(e) => setFormData({ ...formData, link: e.target.value })} className="input-field" />
+                <p className="text-gray-500 text-xs mt-1">If provided, "Read More" will open this link instead of showing content.</p>
               </div>
               <div>
                 <label className="block text-gray-400 mb-2">Featured Image</label>
