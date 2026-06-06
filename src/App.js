@@ -24,6 +24,8 @@ import FanDashboard from './pages/fan/Dashboard';
 import FanProfile from './pages/fan/Profile';
 import TicketBooking from './pages/fan/Tickets';
 import Community from './pages/fan/Community';
+import VotePlayers from './pages/fan/VotePlayers';
+
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -35,6 +37,7 @@ import ManageTickets from './pages/admin/ManageTickets';
 import ManageImages from './pages/admin/ManageImages';
 import ManageOrders from './pages/admin/ManageOrders';
 import ManageShop from './pages/admin/ManageShop';
+import ManageClub from './pages/admin/ManageClub';
 import ManageStaff from './pages/admin/ManageStaff';
 
 // Auth Pages
@@ -130,6 +133,12 @@ function App() {
                 <PublicLayout><Community /></PublicLayout>
               </ProtectedRoute>
             } />
+            <Route path="/fan/vote-players" element={
+              <ProtectedRoute allowedRoles={['fan', 'admin']}>
+                <PublicLayout><VotePlayers /></PublicLayout>
+              </ProtectedRoute>
+            } />
+
             
             {/* Admin Routes */}
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
@@ -181,6 +190,11 @@ function App() {
             <Route path="/admin/shop" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <PublicLayout><ManageShop /></PublicLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/club" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PublicLayout><ManageClub /></PublicLayout>
               </ProtectedRoute>
             } />
             

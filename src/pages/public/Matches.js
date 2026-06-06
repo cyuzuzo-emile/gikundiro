@@ -4,6 +4,9 @@ import { matchesAPI, playersAPI } from '../../services/api';
 
 const Matches = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
+  // Simple in-page “chart board” for match status distribution (no extra libs)
+  const [statusCounts, setStatusCounts] = useState({ Scheduled: 0, Live: 0, Completed: 0 });
+
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [pastMatches, setPastMatches] = useState([]);
   const [playerStats, setPlayerStats] = useState([]);
@@ -18,6 +21,15 @@ const Matches = () => {
         const matches = matchesRes.data || [];
         setUpcomingMatches(matches.filter(m => new Date(m.date) >= new Date()).slice(0, 10));
         setPastMatches(matches.filter(m => new Date(m.date) < new Date()).slice(0, 10));
+
+        // Build status distribution for the chart board
+        const counts = { Scheduled: 0, Live: 0, Completed: 0 };
+        (matches || []).forEach(m => {
+          const st = m.status;
+          if (st && counts[st] !== undefined) counts[st] += 1;
+        });
+        setStatusCounts(counts);
+
         setPlayerStats((playersRes.data || []).map(p => ({
           name: p.name,
           position: p.position,
@@ -51,8 +63,43 @@ const Matches = () => {
         </div>
       </section>
 
+      {/* Chart Board (Match Status) */}
+      <section className="py-8 bg-surface">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="section-title">Match Status Board</h2>
+            <div className="text-gray-400 text-sm">Scheduled vs Live vs Completed</div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { key: 'Scheduled', label: 'Scheduled', color: 'bg-blue-500' },
+              { key: 'Live', label: 'Live', color: 'bg-green-500' },
+              { key: 'Completed', label: 'Completed', color: 'bg-gray-500' },
+            ].map((item) => {
+              const total = (statusCounts.Scheduled + statusCounts.Live + statusCounts.Completed) || 1;
+              const value = statusCounts[item.key] || 0;
+              const pct = Math.round((value / total) * 100);
+              return (
+                <div key={item.key} className="card p-5">
+                  <div className="flex items-center justify-between">
+                    <div className="text-white font-medium">{item.label}</div>
+                    <div className="text-white font-bold">{value}</div>
+                  </div>
+                  <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div className={`${item.color} h-full`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="mt-2 text-gray-400 text-xs">{pct}%</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Tabs */}
       <section className="bg-surface-dark sticky top-20 z-30 border-b border-gray-800">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <button
@@ -155,10 +202,17 @@ const Matches = () => {
                         </div>
                         <div className="flex items-center">
                           <Trophy className="w-5 h-5 mr-2" />
-                          <span>RWF {match.ticketPrice.toLocaleString()}</span>
+                          <span>RWF {(typeof match.ticketPrice === 'number' ? match.ticketPrice : match.ticket_price || 0).toLocaleString()}</span>
+
+
                         </div>
                       </div>
-                      <button className="btn-primary w-full mt-4">
+                      <button
+                        className="btn-primary w-full mt-4"
+                        onClick={() => {
+                          window.location.href = `/fan/tickets?matchId=${match.id}`;
+                        }}
+                      >
                         Book Tickets
                       </button>
                     </div>

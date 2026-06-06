@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, FileText, Calendar, ArrowRight, Package } from 'lucide-react';
+import { Users, FileText, Calendar, ArrowRight, Package, Settings } from 'lucide-react';
 import { usersAPI, playersAPI, matchesAPI, newsAPI, ordersAPI, ticketsAPI } from '../../services/api';
 
 const AdminDashboard = () => {
@@ -144,6 +144,7 @@ const AdminDashboard = () => {
                 { label: 'Manage Matches', to: '/admin/matches', icon: Calendar },
                 { label: 'Manage News', to: '/admin/news', icon: FileText },
                 { label: 'Manage Orders', to: '/admin/orders', icon: Package },
+                { label: 'Manage Club', to: '/admin/club', icon: Settings },
               ].map(({ label, to, icon: Icon }) => (
                 <Link key={to} to={to} className="card p-4 hover:bg-surface-light transition-colors text-center">
                   <Icon className="w-8 h-8 mx-auto text-secondary mb-2" />

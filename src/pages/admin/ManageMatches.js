@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X, Calendar, Upload } from 'lucide-react';
 import { matchesAPI } from '../../services/api';
 
-const empty = { opponent: '', date: '', time: '', venue: '', competition: '', home_or_away: 'Home', status: 'Scheduled', home_score: '', away_score: '', opponent_logo: null, rayon_logo: null };
+const empty = { opponent: '', date: '', time: '', venue: '', competition: 'Premier League', home_or_away: 'Home', status: 'Scheduled', home_score: '', away_score: '', opponent_logo: null, rayon_logo: null };
 
 const ManageMatches = () => {
   const [matches, setMatches] = useState([]);
@@ -30,8 +30,9 @@ const ManageMatches = () => {
     fd.append('competition', formData.competition);
     fd.append('home_or_away', formData.home_or_away);
     fd.append('status', formData.status);
-    if (formData.home_score !== '') fd.append('home_score', formData.home_score);
-    if (formData.away_score !== '') fd.append('away_score', formData.away_score);
+    // MySQL INTEGER columns must not receive the string 'null'
+    if (formData.home_score !== '' && formData.home_score !== null && formData.home_score !== undefined) fd.append('home_score', formData.home_score);
+    if (formData.away_score !== '' && formData.away_score !== null && formData.away_score !== undefined) fd.append('away_score', formData.away_score);
     if (opponentLogoFile) fd.append('opponent_logo', opponentLogoFile);
     if (rayonLogoFile) fd.append('rayon_logo', rayonLogoFile);
     return fd;
@@ -44,7 +45,12 @@ const ManageMatches = () => {
       if (formData.id) { await matchesAPI.update(formData.id, data); }
       else { await matchesAPI.create(data); }
       fetchMatches(); setShowModal(false); setFormData(empty); setOpponentLogoFile(null); setRayonLogoFile(null);
-    } catch (e) { alert(e.response?.data?.message || 'Error saving match'); }
+    } catch (e) {
+      console.error('Save match failed:', e);
+      const msg = e?.response?.data?.message;
+      const details = e?.response?.data;
+      alert(msg || (details ? JSON.stringify(details, null, 2) : 'Error saving match'));
+    }
   };
 
   const handleDelete = async (id) => {
@@ -115,7 +121,24 @@ const ManageMatches = () => {
                           <span className={`px-2 py-1 text-xs rounded-full ${match.status === 'Completed' ? 'bg-gray-500/20 text-gray-400' : match.status === 'Live' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>{match.status}</span>
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <button onClick={() => { setFormData({ ...match, date: match.date?.split('T')[0] }); setOpponentLogoFile(null); setRayonLogoFile(null); setShowModal(true); }} className="text-secondary hover:text-accent mr-3"><Edit className="w-5 h-5" /></button>
+                          <button
+                            onClick={() => {
+                              setFormData({
+                                ...match,
+                                date: match.date?.split('T')[0],
+                                // Ensure scores are either '' or numbers (never null)
+                                home_score: match.home_score ?? '',
+                                away_score: match.away_score ?? ''
+                              });
+                              setOpponentLogoFile(null);
+                              setRayonLogoFile(null);
+                              setShowModal(true);
+                            }}
+                            className="text-secondary hover:text-accent mr-3"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+
                           <button onClick={() => handleDelete(match.id)} className="text-red-500 hover:text-red-400"><Trash2 className="w-5 h-5" /></button>
                         </td>
                       </tr>
@@ -181,7 +204,6 @@ const ManageMatches = () => {
               <div>
                 <label className="block text-gray-400 mb-2">Competition</label>
                 <select value={formData.competition} onChange={(e) => setFormData({ ...formData, competition: e.target.value })} className="input-field" required>
-                  <option value="">Select</option>
                   <option>Premier League</option>
                   <option>Rwanda Cup</option>
                   <option>CECAFA Cup</option>

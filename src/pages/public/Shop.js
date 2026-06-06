@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Star, Plus, Minus, Trash2, X, CreditCard, CheckCircle, Package } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, Star, Plus, Minus, Trash2, X, CreditCard, CheckCircle, Package, LogIn } from 'lucide-react';
 import { ordersAPI, shopAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const Shop = () => {
+  const { isAuthenticated } = useAuth();
   const [activeCategory, setActiveCategory] = useState('all');
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -10,6 +13,7 @@ const Shop = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [checkoutForm, setCheckoutForm] = useState({
     name: '',
     email: '',
@@ -52,6 +56,10 @@ const Shop = () => {
     : products.filter(p => p.category === activeCategory);
 
   const addToCart = (product) => {
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      return;
+    }
     const productId = product._id || product.id;
     const existingItem = cart.find(item => (item._id || item.id) === productId);
     if (existingItem) {
@@ -513,6 +521,40 @@ const Shop = () => {
             >
               Continue Shopping
             </button>
+          </div>
+        </div>
+      )}
+      {/* Login Prompt Modal */}
+      {showLoginPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowLoginPrompt(false)}></div>
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-sm p-8 text-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <LogIn className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-2xl font-heading font-bold text-gray-900 mb-2">Login Required</h2>
+            <p className="text-gray-500 mb-6">You need to be logged in to add items to your cart and make purchases.</p>
+            <div className="flex flex-col gap-3">
+              <Link
+                to="/login"
+                className="btn-primary w-full flex items-center justify-center gap-2"
+              >
+                <LogIn className="w-5 h-5" />
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="btn-outline w-full text-center border-primary text-primary hover:bg-primary hover:text-white"
+              >
+                Create Account
+              </Link>
+              <button
+                onClick={() => setShowLoginPrompt(false)}
+                className="text-gray-400 hover:text-gray-600 text-sm mt-1"
+              >
+                Continue Browsing
+              </button>
+            </div>
           </div>
         </div>
       )}

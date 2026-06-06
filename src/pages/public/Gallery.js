@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
-import { Image, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Image, Play, X, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { playersAPI } from '../../services/api';
 
 const Gallery = () => {
   const [activeTab, setActiveTab] = useState('photos');
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [players, setPlayers] = useState([]);
+  const [allPhotos, setAllPhotos] = useState([]);
 
   const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
-  const photos = [
+  const galleryPhotos = [
     { id: 1, src: `${API_URL}/uploads/gallery/olivie.jpeg`, alt: 'Olivie' },
     { id: 2, src: `${API_URL}/uploads/gallery/fall.jpeg`, alt: 'Fall' },
     { id: 3, src: `${API_URL}/uploads/gallery/basane.jpeg`, alt: 'Basane' },
@@ -18,20 +21,43 @@ const Gallery = () => {
     { id: 7, src: `${API_URL}/uploads/gallery/rayon.jpg`, alt: 'Rayon FC' },
   ];
 
-  const openImage = (photo, index) => {
-    setSelectedImage(photo);
+  useEffect(() => {
+    playersAPI.getAll()
+      .then(res => {
+        const data = res.data || [];
+        setPlayers(data);
+        // build player photo list for lightbox
+        const playerPhotos = data
+          .filter(p => p.photo)
+          .map((p, i) => ({
+            id: `p-${p.id}`,
+            src: p.photo.startsWith('http') ? p.photo : `${API_URL}${p.photo}`,
+            alt: `${p.name} - ${p.position}`,
+            name: p.name,
+            position: p.position,
+            number: p.jersey_number,
+          }));
+        setAllPhotos(playerPhotos);
+      })
+      .catch(e => console.error(e));
+  }, [API_URL]);
+
+  const openImage = (photo, index, photoList) => {
+    setSelectedImage({ ...photo, list: photoList });
     setSelectedIndex(index);
   };
 
   const prevImage = () => {
-    const newIndex = (selectedIndex - 1 + photos.length) % photos.length;
-    setSelectedImage(photos[newIndex]);
+    const list = selectedImage.list;
+    const newIndex = (selectedIndex - 1 + list.length) % list.length;
+    setSelectedImage({ ...list[newIndex], list });
     setSelectedIndex(newIndex);
   };
 
   const nextImage = () => {
-    const newIndex = (selectedIndex + 1) % photos.length;
-    setSelectedImage(photos[newIndex]);
+    const list = selectedImage.list;
+    const newIndex = (selectedIndex + 1) % list.length;
+    setSelectedImage({ ...list[newIndex], list });
     setSelectedIndex(newIndex);
   };
 
@@ -67,34 +93,25 @@ const Gallery = () => {
       <section className="bg-surface-dark sticky top-20 z-30 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('photos')}
-              className={`py-4 px-2 font-medium transition-colors relative ${
-                activeTab === 'photos' ? 'text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center">
-                <Image className="w-5 h-5 mr-2" />
-                Photos
-              </div>
-              {activeTab === 'photos' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"></span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('videos')}
-              className={`py-4 px-2 font-medium transition-colors relative ${
-                activeTab === 'videos' ? 'text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center">
-                <Play className="w-5 h-5 mr-2" />
-                Videos
-              </div>
-              {activeTab === 'videos' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"></span>
-              )}
-            </button>
+            {[
+              { id: 'photos', label: 'Photos', icon: Image },
+              { id: 'players', label: 'Players', icon: Users },
+              { id: 'videos', label: 'Videos', icon: Play },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`py-4 px-2 font-medium transition-colors relative ${
+                  activeTab === id ? 'text-white' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center">
+                  <Icon className="w-5 h-5 mr-2" />
+                  {label}
+                </div>
+                {activeTab === id && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"></span>}
+              </button>
+            ))}
           </div>
         </div>
       </section>
@@ -104,23 +121,55 @@ const Gallery = () => {
         <section className="py-20 bg-surface">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {photos.map((photo, index) => (
-                <div 
-                  key={photo.id} 
+              {galleryPhotos.map((photo, index) => (
+                <div
+                  key={photo.id}
                   className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group"
-                  onClick={() => openImage(photo, index)}
+                  onClick={() => openImage(photo, index, galleryPhotos)}
                 >
-                  <img 
-                    src={photo.src} 
-                    alt={photo.alt} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Image className="w-12 h-12 text-white" />
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Players Photos Grid */}
+      {activeTab === 'players' && (
+        <section className="py-20 bg-surface">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {allPhotos.length === 0 ? (
+              <div className="text-center py-20">
+                <Users className="w-16 h-16 mx-auto text-gray-600 mb-4" />
+                <p className="text-gray-400">No player photos available yet</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {allPhotos.map((photo, index) => (
+                  <div
+                    key={photo.id}
+                    className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group"
+                    onClick={() => openImage(photo, index, allPhotos)}
+                  >
+                    <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                      <span className="text-accent font-bold text-xl">#{photo.number}</span>
+                      <span className="text-white font-heading font-bold text-sm mt-1">{photo.name}</span>
+                      <span className="text-gray-300 text-xs">{photo.position}</span>
+                    </div>
+                    {/* Player name badge */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                      <p className="text-white font-bold text-sm">{photo.name}</p>
+                      <p className="text-accent text-xs">{photo.position}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -163,25 +212,19 @@ const Gallery = () => {
       {/* Lightbox Modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
-          <button 
-            onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 p-2 text-white hover:text-accent transition-colors"
-          >
+          <button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 p-2 text-white hover:text-accent transition-colors">
             <X className="w-8 h-8" />
           </button>
           <button onClick={prevImage} className="absolute left-4 p-2 text-white hover:text-accent transition-colors">
             <ChevronLeft className="w-8 h-8" />
           </button>
-          <img 
-            src={selectedImage.src} 
-            alt={selectedImage.alt} 
-            className="max-w-4xl max-h-[90vh] object-contain"
-          />
+          <img src={selectedImage.src} alt={selectedImage.alt} className="max-w-4xl max-h-[90vh] object-contain" />
           <button onClick={nextImage} className="absolute right-4 p-2 text-white hover:text-accent transition-colors">
             <ChevronRight className="w-8 h-8" />
           </button>
-          <div className="absolute bottom-4 text-white">
-            <p className="text-lg font-medium">{selectedImage.alt}</p>
+          <div className="absolute bottom-4 text-center text-white">
+            <p className="text-lg font-bold">{selectedImage.name || selectedImage.alt}</p>
+            {selectedImage.position && <p className="text-accent text-sm">{selectedImage.position}</p>}
           </div>
         </div>
       )}

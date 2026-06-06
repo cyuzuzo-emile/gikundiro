@@ -1,22 +1,53 @@
-import React, { useState } from 'react';
-import { Ticket, Calendar, MapPin, QrCode, Check, X } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Ticket, Calendar, QrCode, Check, X } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { matchesAPI, ticketsAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const TicketBooking = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('book');
+  const [matches, setMatches] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(null);
 
-  const upcomingMatches = [
-    { id: 1, opponent: 'Amazulu FC', date: '2024-03-15', time: '15:00', venue: 'Nyamirambo Stadium', price: 5000, available: 150 },
-    { id: 2, opponent: 'Police FC', date: '2024-03-22', time: '18:00', venue: 'Amahoro Stadium', price: 3000, available: 200 },
-    { id: 3, opponent: 'APRA FC', date: '2024-03-29', time: '15:00', venue: 'Nyamirambo Stadium', price: 4000, available: 180 },
-  ];
+  const matchIdFromQuery = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('matchId');
+  }, [location.search]);
 
-  const myTickets = [
-    { id: 1, match: 'Rayon FC vs Bugesera FC', date: '2024-03-01', seat: 'A12', status: 'used', qrCode: 'QR123' },
-    { id: 2, match: 'Rayon FC vs Amazulu FC', date: '2024-03-15', seat: 'B05', status: 'valid', qrCode: 'QR456' },
-  ];
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const res = await matchesAPI.getUpcoming();
+        setMatches(res.data || []);
+      } catch (e) {
+        // fallback to all matches
+        try {
+          const res2 = await matchesAPI.getAll();
+          setMatches((res2.data || []).filter(m => new Date(m.date) >= new Date()));
+        } catch (e2) {
+          console.error(e2);
+        }
+      }
+    };
+    fetchMatches();
+  }, []);
+
+  useEffect(() => {
+    if (!matchIdFromQuery) return;
+    const found = matches.find(m => String(m.id) === String(matchIdFromQuery));
+    if (found) {
+      setSelectedMatch(found);
+      setSelectedSeats([]);
+    }
+  }, [matchIdFromQuery, matches]);
+
+  const myTickets = [];
 
   const seatSections = ['A', 'B', 'C', 'D'];
   const seatNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -34,17 +65,53 @@ const TicketBooking = () => {
     }
   };
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!selectedMatch || selectedSeats.length === 0) {
       alert('Please select a match and seats');
       return;
     }
-    setBookingSuccess(true);
-    setSelectedMatch(null);
-    setSelectedSeats([]);
+    if (!user?.id) {
+      alert('Login required');
+      navigate('/login');
+      return;
+    }
+
+    const price =
+      selectedMatch.ticket_price ??
+      selectedMatch.ticketPrice ??
+      selectedMatch.price ??
+      0;
+
+    try {
+      setBookingLoading(true);
+      // book one ticket per seat
+      await Promise.all(
+        selectedSeats.map(seat_number =>
+          ticketsAPI.book({
+            user_id: user.id,
+            match_id: selectedMatch.id,
+            seat_number,
+            price,
+            qr_code: null,
+            status: 'Valid'
+          })
+        )
+      );
+
+      setBookingSuccess(true);
+      setSelectedMatch(null);
+      setSelectedSeats([]);
+    } catch (e) {
+      console.error(e);
+      alert(e?.response?.data?.message || 'Error booking tickets');
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
-  const total = selectedMatch ? selectedMatch.price * selectedSeats.length : 0;
+  const total = selectedMatch
+    ? ((selectedMatch.ticket_price ?? selectedMatch.ticketPrice ?? selectedMatch.price ?? 0) * selectedSeats.length)
+    : 0;
 
   return (
     <div className="min-h-screen pt-20 pb-12">
@@ -116,7 +183,7 @@ const TicketBooking = () => {
               <div className="lg:col-span-2">
                 <h2 className="text-xl font-heading font-bold text-white mb-6">Select a Match</h2>
                 <div className="space-y-4">
-                  {upcomingMatches.map((match) => (
+                  {matches.map((match) => (
                     <div 
                       key={match.id}
                       className={`card p-6 cursor-pointer transition-all ${
@@ -138,8 +205,8 @@ const TicketBooking = () => {
                           </div>
                         </div>
                         <div className="mt-4 md:mt-0 text-right">
-                          <p className="text-accent font-bold text-xl">RWF {match.price.toLocaleString()}</p>
-                          <p className="text-gray-400 text-sm">{match.available} seats available</p>
+                          <p className="text-accent font-bold text-xl">RWF {(match.ticket_price ?? match.ticketPrice ?? match.price ?? 0).toLocaleString()}</p>
+                          <p className="text-gray-400 text-sm">Seats will be booked per selection</p>
                         </div>
                       </div>
                     </div>
@@ -204,19 +271,19 @@ const TicketBooking = () => {
                       <div className="border-t border-gray-800 pt-4">
                         <div className="flex justify-between">
                           <span className="text-gray-400">Price per seat</span>
-                          <span className="text-white">RWF {selectedMatch.price.toLocaleString()}</span>
+                          <span className="text-white">RWF {(selectedMatch.ticket_price ?? selectedMatch.ticketPrice ?? selectedMatch.price ?? 0).toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between mt-2">
                           <span className="text-xl font-bold text-white">Total</span>
                           <span className="text-xl font-bold text-accent">RWF {total.toLocaleString()}</span>
                         </div>
                       </div>
-                      <button 
+                      <button
                         onClick={handleBooking}
-                        disabled={selectedSeats.length === 0}
+                        disabled={selectedSeats.length === 0 || bookingLoading}
                         className="btn-primary w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Confirm Booking
+                        {bookingLoading ? 'Booking...' : 'Confirm Booking'}
                       </button>
                     </div>
                   ) : (

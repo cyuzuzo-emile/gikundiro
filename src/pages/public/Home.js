@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Calendar, Trophy, ArrowRight, Clock, MapPin, ChevronRight, Mail } from 'lucide-react';
 import { playersAPI, matchesAPI, newsAPI } from '../../services/api';
 
+const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+
 const Home = () => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [upcomingMatches, setUpcomingMatches] = useState([]);
@@ -230,14 +232,15 @@ const Home = () => {
               <div key={player.id} className="card group">
                 <div className="relative h-80 overflow-hidden">
                   <img 
-                    src={player.image} 
-                    alt={player.name} 
+                    src={player.photo ? `${API_URL}${player.photo}` : 'https://via.placeholder.com/600x600?text=Player'}
+                    alt={player.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/600x600?text=Player'; }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <span className="absolute top-4 right-4 w-12 h-12 bg-accent rounded-full flex items-center justify-center text-primary font-heading font-bold text-xl">
-                      {player.number}
+                      {player.jersey_number}
                     </span>
                     <h3 className="text-2xl font-heading font-bold text-white">{player.name}</h3>
                     <p className="text-gray-300">{player.position}</p>
@@ -250,11 +253,15 @@ const Home = () => {
             ))}
           </div>
 
-          <div className="text-center mt-8">
+          <div className="text-center mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link to="/fan/vote-players" className="btn-accent">
+              Vote Player of the Week/Month <ChevronRight className="w-5 h-5 ml-1" />
+            </Link>
             <Link to="/team" className="btn-outline">
-              View Full Squad <ChevronRight className="w-5 h-5 ml-1" />
+              View Full Squad
             </Link>
           </div>
+
         </div>
       </section>
 

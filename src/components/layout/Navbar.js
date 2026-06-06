@@ -79,6 +79,7 @@ const Navbar = () => {
     { name: 'Tickets', path: '/admin/tickets', icon: Calendar },
     { name: 'Orders', path: '/admin/orders', icon: Package },
     { name: 'Shop', path: '/admin/shop', icon: ShoppingBag },
+    { name: 'Club', path: '/admin/club', icon: Settings },
   ];
 
   return (

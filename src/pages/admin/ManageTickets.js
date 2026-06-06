@@ -1,15 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { Search, DollarSign, CheckCircle, XCircle } from 'lucide-react';
-import { ticketsAPI } from '../../services/api';
+import { Search, DollarSign, CheckCircle, XCircle, Plus, Trash2 } from 'lucide-react';
+import { ticketsAPI, matchesAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+
 
 const ManageTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchTickets(); }, []);
+  const [matches, setMatches] = useState([]);
+  const [selectedMatchId, setSelectedMatchId] = useState('');
+
+  // seat selection / admin actions
+  const [selectedSeat, setSelectedSeat] = useState('A1');
+
+  const { user } = useAuth();
+  const token = localStorage.getItem('token');
+
+
+  useEffect(() => {
+    fetchMatches();
+    fetchTickets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchMatches = async () => {
+    try {
+      const res = await matchesAPI.getAll();
+      setMatches(res.data || []);
+      if (!selectedMatchId && (res.data?.[0]?.id || res.data?.[0]?.ID)) {
+        setSelectedMatchId(res.data[0].id || res.data[0].ID);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchTickets = async () => {
+
     try { const res = await ticketsAPI.getAll(); setTickets(res.data); }
     catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -20,18 +49,79 @@ const ManageTickets = () => {
     catch (e) { alert('Error validating ticket'); }
   };
 
+  const handleAddTicket = async () => {
+    try {
+      if (!selectedMatchId) return alert('Select a match');
+      if (!selectedSeat) return alert('Select a seat');
+      if (!user?.id) return alert('Login required to create tickets');
+
+      // price is required by Ticket model (NOT NULL if your DB defines it)
+      // try to infer price from match row
+      const match = matches.find(m => String(m.id) === String(selectedMatchId)) || {};
+      const price = match.ticket_price || match.ticketPrice || 0;
+
+      await ticketsAPI.book({
+        user_id: user.id,
+        match_id: selectedMatchId,
+        seat_number: selectedSeat,
+        price,
+        qr_code: null,
+        status: 'Valid'
+      });
+      fetchTickets();
+    } catch (e) {
+      console.error(e);
+      alert(e?.response?.data?.message || 'Error saving ticket');
+    }
+  };
+
+  const handleRemoveTicket = async () => {
+    try {
+      if (!selectedMatchId) return alert('Select a match');
+      if (!selectedSeat) return alert('Select a seat');
+
+      // delete all tickets for that match+seat
+      const toDelete = tickets.filter(t => String(t.match_id) === String(selectedMatchId) && t.seat_number === selectedSeat);
+      if (toDelete.length === 0) return;
+
+      if (!window.confirm(`Remove ticket for seat ${selectedSeat}?`)) return;
+
+      await Promise.all(
+        toDelete.map(t => fetch(`${process.env.REACT_APP_API_URL || ''}/api/tickets/${t.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : undefined,
+
+          }
+        }))
+      );
+
+      fetchTickets();
+    } catch (e) {
+      console.error(e);
+      alert(e?.response?.data?.message || 'Error deleting ticket');
+    }
+  };
+
+
   const stats = {
+
     totalRevenue: tickets.reduce((sum, t) => sum + (t.price || 0), 0),
     total: tickets.length,
     valid: tickets.filter(t => t.status === 'Valid').length,
     used: tickets.filter(t => t.status === 'Used').length,
   };
 
-  const filtered = tickets.filter(t =>
+
+
+
+  const filtered = tickets.filter((t) =>
     String(t.user_id).includes(searchQuery) ||
     String(t.match_id).includes(searchQuery) ||
     t.seat_number?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   return (
     <div className="min-h-screen pt-20 pb-12">
@@ -41,6 +131,7 @@ const ManageTickets = () => {
           <p className="text-gray-400 mt-2">Monitor ticket sales and validate tickets</p>
         </div>
       </section>
+
 
       <section className="py-8 bg-surface-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,6 +155,7 @@ const ManageTickets = () => {
       </section>
 
       <section className="py-8 bg-surface">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8 max-w-md">
             <div className="relative">
@@ -71,6 +163,66 @@ const ManageTickets = () => {
               <input type="text" placeholder="Search tickets..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="input-field pl-10" />
             </div>
           </div>
+
+          <div className="card p-6 mb-8">
+            <h2 className="text-xl font-heading font-bold text-white mb-4">Admin Seat Control</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block text-gray-400 mb-2">Select Match</label>
+                <select
+                  value={selectedMatchId}
+                  onChange={(e) => setSelectedMatchId(e.target.value)}
+                  className="input-field w-full"
+                >
+                  <option value="">Choose...</option>
+                  {matches.map(m => (
+                    <option key={m.id} value={m.id}>
+                      {m.opponent ? `Rayon vs ${m.opponent}` : `Match ${m.id}`} ({m.competition || 'Competition'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-gray-400 mb-2">Selected Seat</label>
+                <input
+                  value={selectedSeat}
+                  onChange={(e) => setSelectedSeat(e.target.value.toUpperCase())}
+                  className="input-field w-full"
+                  placeholder="A1"
+                />
+              </div>
+
+              <div className="flex items-end gap-3">
+                <button onClick={handleAddTicket} className="btn-primary flex-1">Add ticket</button>
+                <button onClick={handleRemoveTicket} className="btn-outline text-red-400 flex-1">Remove ticket</button>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-gray-400 text-sm mb-3">Click a seat to set it (Yellow = Used, Black/gray = Available)</div>
+              <div className="grid grid-cols-10 gap-2">
+                {['A','B','C','D'].flatMap(sec => Array.from({length:10},(_,i)=>`${sec}${i+1}`)).map(seat => {
+                  const used = tickets.some(t => String(t.match_id) === String(selectedMatchId) && t.seat_number === seat && t.status === 'Used');
+                  return (
+                    <button
+                      key={seat}
+                      onClick={() => setSelectedSeat(seat)}
+                      className={`p-2 rounded text-sm font-medium transition-all ${
+                        used
+                          ? 'bg-yellow-500/20 text-yellow-300'
+                          : 'bg-black/60 text-white/70 hover:bg-black/40'
+                      } ${selectedSeat === seat ? 'ring-2 ring-accent' : ''}`}
+                    >
+                      {seat}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
 
           {loading ? (
             <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary"></div></div>
