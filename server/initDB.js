@@ -58,6 +58,11 @@ const initDB = async () => {
       )
     `);
 
+    // Add rayon_logo column if it doesn't exist
+    await conn.query(`
+      ALTER TABLE matches ADD COLUMN IF NOT EXISTS rayon_logo VARCHAR(255)
+    `).catch(() => {});
+
     await conn.query(`
       CREATE TABLE IF NOT EXISTS news (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -151,6 +156,20 @@ const initDB = async () => {
         bio TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS player_votes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        player_id INT NOT NULL,
+        vote_type ENUM('week','month') NOT NULL,
+        period VARCHAR(20) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_vote (user_id, vote_type, period),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
       )
     `);
 

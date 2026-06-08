@@ -19,7 +19,12 @@ const Match = {
     return rows;
   },
   async create(data) {
-    const toMySQL = (v) => v ? new Date(v).toISOString().slice(0, 19).replace('T', ' ') : null;
+    const toMySQL = (v) => {
+      if (!v) return null;
+      // If already in YYYY-MM-DD format, append time directly
+      if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return `${v} 00:00:00`;
+      return new Date(v).toISOString().slice(0, 19).replace('T', ' ');
+    };
     const { date, time, opponent, opponent_logo, rayon_logo, venue, competition, home_or_away='Home', home_score, away_score, status='Scheduled', ticket_price=5000, available_tickets=500 } = data;
     const [result] = await pool.query(
       'INSERT INTO matches (date,time,opponent,opponent_logo,rayon_logo,venue,competition,home_or_away,home_score,away_score,status,ticket_price,available_tickets) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
@@ -28,9 +33,15 @@ const Match = {
     return this.findById(result.insertId);
   },
   async update(id, data) {
+    const toMySQL = (v) => {
+      if (!v) return null;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return `${v} 00:00:00`;
+      return new Date(v).toISOString().slice(0, 19).replace('T', ' ');
+    };
     const sanitized = sanitizeData(data, ['id', 'created_at', 'updated_at']);
     const cleaned = Object.fromEntries(
       Object.entries(sanitized).map(([k, v]) => {
+        if (k === 'date' && v) return [k, toMySQL(v)];
         if (v === '') return [k, null];
         return [k, v];
       })
