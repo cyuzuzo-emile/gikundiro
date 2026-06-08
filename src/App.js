@@ -72,11 +72,12 @@ const PublicLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-body">
       <Navbar />
-      <main>{children}</main>
+      <main className="relative">{children}</main>
       <Footer />
     </div>
   );
 };
+
 
 // Auth Layout
 const AuthLayout = ({ children }) => {

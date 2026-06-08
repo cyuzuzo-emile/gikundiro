@@ -6,7 +6,7 @@ import { useTheme } from '../../context/ThemeContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -23,7 +23,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -239,8 +239,9 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className={`lg:hidden border-t ${effectiveDark ? 'bg-[var(--bg-surface)] border-[var(--bg-input-border)]' : 'bg-white border-gray-200'}`}>
-          <div className="px-4 py-4 space-y-2">
+          <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
             {navLinks.map((link) => (
+
               <Link
                 key={link.name}
                 to={link.path}

@@ -46,18 +46,30 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: 'Open Sans', sans-serif;
   background-color: var(--bg-body);
   color: var(--text-primary);
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
+
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
+
+main {
+  padding-top: 5rem; /* fixed navbar height (h-20 = 5rem) */
+}
+
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Oswald', sans-serif;
