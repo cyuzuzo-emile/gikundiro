@@ -34,6 +34,15 @@ router.get('/upcoming', async (req, res) => {
   catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+router.get('/live', async (req, res) => {
+  try {
+    const [rows] = await (await require('../db').getConnection()).query("SELECT * FROM matches WHERE status='Live' ORDER BY date ASC");
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
 router.get('/past', async (req, res) => {
   try { res.json(await Match.findPast()); }
   catch (e) { res.status(500).json({ message: e.message }); }

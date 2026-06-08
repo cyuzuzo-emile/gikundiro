@@ -53,6 +53,8 @@ const initDB = async () => {
         status ENUM('Scheduled','Live','Completed') DEFAULT 'Scheduled',
         ticket_price INT DEFAULT 5000,
         available_tickets INT DEFAULT 500,
+        live_stream_url VARCHAR(512),
+        highlights_video_url VARCHAR(512),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )

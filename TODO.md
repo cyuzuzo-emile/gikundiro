@@ -1,8 +1,11 @@
-# TODO - Make site responsive (phone + laptop)
+# TODO (UI/Brand pass)
 
-- [ ] Add global responsive baseline styles in `client/src/index.css` (mobile viewport, text rendering).
-- [ ] Fix layout spacing for fixed navbar (ensure all pages have correct top padding; update `client/src/App.js`).
-- [ ] Improve mobile navbar menu usability (prevent overflow; ensure scroll and proper sizing) in `client/src/components/layout/Navbar.js`.
-- [ ] Audit and adjust common fixed-height UI patterns (hero/images/cards/modals) to be responsive across breakpoints.
-- [ ] Run lint/build/dev server and manually verify key routes: Home, Matches, News, Shop, Gallery, Tickets, Login.
+## Arsenal-like look
+- [ ] Update `client/src/index.css` design tokens + add reusable utilities (section headers, premium card, link/button hover)
+- [ ] Improve `client/src/components/layout/Navbar.js` to match new utilities; fix dark-mode effectiveDark logic
+- [ ] Refactor `client/src/pages/public/Home.js` hero + key sections to use premium classes
+- [ ] Refactor `client/src/pages/public/Matches.js` tabs + cards to use premium classes
+- [ ] Refactor `client/src/pages/public/News.js` featured + grid cards to use premium classes
+- [ ] Refactor `client/src/components/layout/Footer.js` styling to match premium cards/typography
+- [ ] Run build / start to verify no Tailwind class issues
 

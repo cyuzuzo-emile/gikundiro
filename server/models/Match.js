@@ -25,11 +25,46 @@ const Match = {
       if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return `${v} 00:00:00`;
       return new Date(v).toISOString().slice(0, 19).replace('T', ' ');
     };
-    const { date, time, opponent, opponent_logo, rayon_logo, venue, competition, home_or_away='Home', home_score, away_score, status='Scheduled', ticket_price=5000, available_tickets=500 } = data;
+
+    const {
+      date,
+      time,
+      opponent,
+      opponent_logo,
+      rayon_logo,
+      venue,
+      competition,
+      home_or_away = 'Home',
+      home_score,
+      away_score,
+      status = 'Scheduled',
+      ticket_price = 5000,
+      available_tickets = 500,
+      live_stream_url = null,
+      highlights_video_url = null
+    } = data;
+
     const [result] = await pool.query(
-      'INSERT INTO matches (date,time,opponent,opponent_logo,rayon_logo,venue,competition,home_or_away,home_score,away_score,status,ticket_price,available_tickets) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
-      [toMySQL(date), time||null, opponent, opponent_logo||null, rayon_logo||null, venue, competition, home_or_away, home_score||null, away_score||null, status, ticket_price, available_tickets]
+      'INSERT INTO matches (date,time,opponent,opponent_logo,rayon_logo,venue,competition,home_or_away,home_score,away_score,status,ticket_price,available_tickets,live_stream_url,highlights_video_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      [
+        toMySQL(date),
+        time || null,
+        opponent,
+        opponent_logo || null,
+        rayon_logo || null,
+        venue,
+        competition,
+        home_or_away,
+        home_score || null,
+        away_score || null,
+        status,
+        ticket_price,
+        available_tickets,
+        live_stream_url || null,
+        highlights_video_url || null
+      ]
     );
+
     return this.findById(result.insertId);
   },
   async update(id, data) {
