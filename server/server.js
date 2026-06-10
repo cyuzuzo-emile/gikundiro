@@ -23,10 +23,21 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Serve static files from React build in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-}
+  // Support both common repo layouts:
+  // - server/../client/build
+  // - ../client/build
+  const buildPathsToTry = [
+    path.join(__dirname, '../client/build'),
+    path.join(__dirname, '../../client/build'),
+  ];
+
+  const fs = require('fs');
+  const buildDir = buildPathsToTry.find(p => fs.existsSync(path.join(p, 'index.html')));
+
+ 
 
 initDB().catch(err => console.error('DB init error:', err.message));
+
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -47,10 +58,18 @@ app.get('/api/health', (req, res) => {
 
 // Serve React app for all other routes (SPA support)
 if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
+  // Use the same resolved buildDir logic above by attempting the known paths.
+  const fs = require('fs');
+  const buildPathsToTry = [
+    path.join(__dirname, '../client/build'),
+    path.join(__dirname, '../../client/build'),
+  ];
+
+  const buildDir = buildPathsToTry.find(p => fs.existsSync(path.join(p, 'index.html')));
+
+  a
 }
+
 
 const PORT = process.env.PORT || 5000;
 

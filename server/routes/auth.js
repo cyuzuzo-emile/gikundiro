@@ -23,14 +23,37 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findByEmail(email);
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+
+    // Debug-friendly guard: prevents bcrypt from throwing confusing 500s
+    if (!user.password) {
+      console.error('Auth login error: user.password is missing for user id:', user.id);
+      return res.status(500).json({ message: 'Password hash not found for user' });
+    }
+
     const match = await User.comparePassword(password, user.password);
     if (!match) return res.status(400).json({ message: 'Invalid credentials' });
+
     const token = jwt.sign({ id: user.id, role: user.role }, SECRET, { expiresIn: '7d' });
     res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Auth login error:', {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack,
+      // mysql2/promise errors often store details on `code` / `sqlMessage`
+      code: error?.code,
+      sqlMessage: error?.sqlMessage,
+      sql: error?.sql,
+    });
+    res.status(500).json({
+      message: error?.message || 'Login failed',
+      code: error?.code,
+    });
   }
 });
+
+
+
 
 router.get('/me', async (req, res) => {
   try {
@@ -44,5 +67,5 @@ router.get('/me', async (req, res) => {
     res.status(401).json({ message: 'Invalid token' });
   }
 });
-
 module.exports = router;
+
