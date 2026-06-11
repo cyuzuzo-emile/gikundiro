@@ -17,7 +17,10 @@ const corsOptions = {
 };
 
 // Middleware
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://rayon-sport.onrender.com', 'http://localhost:3001'],
+  credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
@@ -72,6 +75,6 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`📡 API available at http://localhost:${PORT}/api/health`);
+  console.log(` API available at http://localhost:${PORT}/api/health`);
   console.log(`🌐 Open http://localhost:${PORT} in your browser`);
 });
