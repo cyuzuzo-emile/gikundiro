@@ -20,9 +20,11 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    /jpeg|jpg|png|gif/.test(file.mimetype) ? cb(null, true) : cb(new Error('Only image files allowed'));
+    if (/jpeg|jpg|png|gif/.test(file.mimetype)) return cb(null, true);
+    return cb(new Error('Only image files allowed'));
   }
 });
+
 
 router.get('/', async (req, res) => {
   try { res.json(await News.findAll()); }

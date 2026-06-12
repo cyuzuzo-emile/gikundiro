@@ -1,5 +1,6 @@
 const pool = require('./db');
 
+
 const initDB = async () => {
   const conn = await pool.getConnection();
   try {
@@ -72,7 +73,6 @@ const initDB = async () => {
         content TEXT,
         category ENUM('Announcement','Match Report','Transfer','General') DEFAULT 'General',
         image VARCHAR(255),
-        link VARCHAR(512),
         author_id INT,
         published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -80,6 +80,12 @@ const initDB = async () => {
         FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
       )
     `);
+
+    // Ensure news.link exists (some DBs were created without it)
+    await conn.query(`
+      ALTER TABLE news ADD COLUMN IF NOT EXISTS link VARCHAR(512)
+    `).catch(() => {});
+
 
     await conn.query(`
       CREATE TABLE IF NOT EXISTS tickets (
