@@ -1,36 +1,66 @@
-const pool = require('../db');
-const { sanitizeData } = require('../utils/dateUtils');
+// server/models/Staff.js
+const mongoose = require('mongoose');
+
+const staffSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  position: { type: String, required: true },
+  photo: { type: String, default: null },
+  bio: { type: String, default: null },
+}, { timestamps: true });
+
+const StaffModel = mongoose.model('Staff', staffSchema);
 
 const Staff = {
   async findAll() {
-    const [rows] = await pool.query('SELECT * FROM staff ORDER BY id ASC');
-    return rows;
+    return await StaffModel.find().sort({ created_at: 1 });
   },
+
   async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM staff WHERE id=?', [id]);
-    return rows[0] || null;
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await StaffModel.findById(id);
   },
+
   async create(data) {
     const { name, position, photo, bio } = data;
-    const [result] = await pool.query(
-      'INSERT INTO staff (name,position,photo,bio) VALUES (?,?,?,?)',
-      [name, position, photo||null, bio||null]
-    );
-    return this.findById(result.insertId);
+
+    const staff = await StaffModel.create({
+      name,
+      position,
+      photo: photo || null,
+      bio: bio || null,
+    });
+
+    return staff;
   },
+
   async update(id, data) {
-    const sanitized = sanitizeData(data, ['id', 'created_at', 'updated_at']);
-    const cleaned = Object.fromEntries(
-      Object.entries(sanitized).map(([k, v]) => [k, v === '' ? null : v])
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+
+    const cleaned = { ...data };
+
+    // Kuraho fields zitari kuri schema
+    delete cleaned.id;
+    delete cleaned._id;
+    delete cleaned.created_at;
+    delete cleaned.updated_at;
+
+    // Hindura empty strings kuba null
+    Object.keys(cleaned).forEach(k => {
+      if (cleaned[k] === '') cleaned[k] = null;
+    });
+
+    const staff = await StaffModel.findByIdAndUpdate(
+      id,
+      { $set: cleaned },
+      { new: true, runValidators: true }
     );
-    const fields = Object.keys(cleaned).map(k => `${k}=?`).join(',');
-    if (fields.length === 0) return this.findById(id);
-    await pool.query(`UPDATE staff SET ${fields} WHERE id=?`, [...Object.values(cleaned), id]);
-    return this.findById(id);
+    return staff;
   },
+
   async delete(id) {
-    await pool.query('DELETE FROM staff WHERE id=?', [id]);
-  }
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await StaffModel.findByIdAndDelete(id);
+  },
 };
 
 module.exports = Staff;

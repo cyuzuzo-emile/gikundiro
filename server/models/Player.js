@@ -1,36 +1,107 @@
-const pool = require('../db');
-const { sanitizeData } = require('../utils/dateUtils');
+// server/models/Player.js
+const mongoose = require('mongoose');
+
+const playerSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  position: {
+    type: String,
+    enum: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'],
+    required: true
+  },
+  jersey_number: { type: Number, required: true, unique: true },
+  nationality: { type: String, required: true },
+  date_of_birth: { type: Date, default: null },
+  photo: { type: String, default: null },
+  bio: { type: String, default: null },
+  goals: { type: Number, default: 0 },
+  assists: { type: Number, default: 0 },
+  appearances: { type: Number, default: 0 },
+  clean_sheets: { type: Number, default: 0 },
+}, { timestamps: true });
+
+const PlayerModel = mongoose.model('Player', playerSchema);
+
+// Helper yo guhindura date
+const toDate = (v) => {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return new Date(`${v}T00:00:00Z`);
+  return new Date(v);
+};
 
 const Player = {
   async findAll() {
-    const [rows] = await pool.query('SELECT * FROM players ORDER BY jersey_number ASC');
-    return rows;
+    return await PlayerModel.find().sort({ jersey_number: 1 });
   },
+
   async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM players WHERE id=?', [id]);
-    return rows[0] || null;
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await PlayerModel.findById(id);
   },
+
   async create(data) {
-    const { name, position, jersey_number, nationality, date_of_birth, photo, bio, goals=0, assists=0, appearances=0, clean_sheets=0 } = data;
-    const [result] = await pool.query(
-      'INSERT INTO players (name,position,jersey_number,nationality,date_of_birth,photo,bio,goals,assists,appearances,clean_sheets) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-      [name, position, jersey_number, nationality, date_of_birth||null, photo||null, bio||null, goals, assists, appearances, clean_sheets]
-    );
-    return this.findById(result.insertId);
+    const {
+      name,
+      position,
+      jersey_number,
+      nationality,
+      date_of_birth,
+      photo,
+      bio,
+      goals = 0,
+      assists = 0,
+      appearances = 0,
+      clean_sheets = 0,
+    } = data;
+
+    const player = await PlayerModel.create({
+      name,
+      position,
+      jersey_number,
+      nationality,
+      date_of_birth: toDate(date_of_birth),
+      photo: photo || null,
+      bio: bio || null,
+      goals,
+      assists,
+      appearances,
+      clean_sheets,
+    });
+
+    return player;
   },
+
   async update(id, data) {
-    const sanitized = sanitizeData(data, ['id', 'created_at', 'updated_at']);
-    const cleaned = Object.fromEntries(
-      Object.entries(sanitized).map(([k, v]) => [k, v === '' ? null : v])
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+
+    const cleaned = { ...data };
+
+    // Hindura date
+    if (cleaned.date_of_birth) cleaned.date_of_birth = toDate(cleaned.date_of_birth);
+
+    // Kuraho fields zitari kuri schema
+    delete cleaned.id;
+    delete cleaned._id;
+    delete cleaned.created_at;
+    delete cleaned.updated_at;
+
+    // Hindura empty strings kuba null
+    Object.keys(cleaned).forEach(k => {
+      if (cleaned[k] === '') cleaned[k] = null;
+    });
+
+    const player = await PlayerModel.findByIdAndUpdate(
+      id,
+      { $set: cleaned },
+      { new: true, runValidators: true }
     );
-    const fields = Object.keys(cleaned).map(k => `${k}=?`).join(',');
-    if (fields.length === 0) return this.findById(id);
-    await pool.query(`UPDATE players SET ${fields} WHERE id=?`, [...Object.values(cleaned), id]);
-    return this.findById(id);
+    return player;
   },
+
   async delete(id) {
-    await pool.query('DELETE FROM players WHERE id=?', [id]);
-  }
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await PlayerModel.findByIdAndDelete(id);
+  },
 };
 
 module.exports = Player;

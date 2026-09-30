@@ -1,15 +1,18 @@
-require('dotenv').config();
-const mysql = require('mysql2/promise');
+// server/db.js
+const mongoose = require('mongoose');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'rayonsportsfc',
-  waitForConnections: true,
-  connectionLimit: 10,
-  ssl: process.env.DB_HOST && process.env.DB_HOST !== 'localhost' ? { rejectUnauthorized: false } : false,
-});
+async function connectDB() {
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI ntashyizweho muri environment variables');
+  }
+  
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ MongoDB yahuze neza');
+  } catch (err) {
+    console.error('❌ MongoDB connection yanze:', err.message);
+    throw err;
+  }
+}
 
-module.exports = pool;
+module.exports = connectDB;

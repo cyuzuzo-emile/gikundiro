@@ -1,94 +1,108 @@
-const pool = require('../db');
-const { sanitizeData } = require('../utils/dateUtils');
+// server/models/Match.js
+const mongoose = require('mongoose');
+
+const matchSchema = new mongoose.Schema({
+  date: { type: Date, required: true },
+  time: String,
+  opponent: { type: String, required: true },
+  opponent_logo: String,
+  rayon_logo: String,
+  venue: { type: String, required: true },
+  competition: { type: String, required: true },
+  home_or_away: { type: String, enum: ['Home', 'Away'], default: 'Home' },
+  home_score: { type: Number, default: null },
+  away_score: { type: Number, default: null },
+  status: {
+    type: String,
+    enum: ['Scheduled', 'Live', 'Completed'],
+    default: 'Scheduled'
+  },
+  ticket_price: { type: Number, default: 5000 },
+  available_tickets: { type: Number, default: 500 },
+  live_stream_url: { type: String, default: null },
+  highlights_video_url: { type: String, default: null },
+}, { timestamps: true });
+
+const MatchModel = mongoose.model('Match', matchSchema);
+
+// Kora helper yo guhindura date (MongoDB ikoresha Date object, atari string)
+const toDate = (v) => {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return new Date(`${v}T00:00:00Z`);
+  return new Date(v);
+};
 
 const Match = {
   async findAll() {
-    const [rows] = await pool.query('SELECT * FROM matches ORDER BY date ASC');
-    return rows;
+    return await MatchModel.find().sort({ date: 1 });
   },
+
   async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM matches WHERE id=?', [id]);
-    return rows[0] || null;
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await MatchModel.findById(id);
   },
+
   async findUpcoming() {
-    const [rows] = await pool.query('SELECT * FROM matches WHERE date >= NOW() ORDER BY date ASC');
-    return rows;
+    return await MatchModel.find({ date: { $gte: new Date() } }).sort({ date: 1 });
   },
+
   async findPast() {
-    const [rows] = await pool.query('SELECT * FROM matches WHERE date < NOW() ORDER BY date DESC');
-    return rows;
+    return await MatchModel.find({ date: { $lt: new Date() } }).sort({ date: -1 });
   },
+
   async create(data) {
-    const toMySQL = (v) => {
-      if (!v) return null;
-      // If already in YYYY-MM-DD format, append time directly
-      if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return `${v} 00:00:00`;
-      return new Date(v).toISOString().slice(0, 19).replace('T', ' ');
-    };
+    const cleaned = { ...data };
+    
+    // Hindura date
+    if (cleaned.date) cleaned.date = toDate(cleaned.date);
+    
+    // Kuraho fields zitari kuri schema
+    delete cleaned.id;
+    delete cleaned._id;
+    delete cleaned.created_at;
+    delete cleaned.updated_at;
 
-    const {
-      date,
-      time,
-      opponent,
-      opponent_logo,
-      rayon_logo,
-      venue,
-      competition,
-      home_or_away = 'Home',
-      home_score,
-      away_score,
-      status = 'Scheduled',
-      ticket_price = 5000,
-      available_tickets = 500,
-      live_stream_url = null,
-      highlights_video_url = null
-    } = data;
+    // Hindura empty strings kuba null
+    Object.keys(cleaned).forEach(k => {
+      if (cleaned[k] === '') cleaned[k] = null;
+    });
 
-    const [result] = await pool.query(
-      'INSERT INTO matches (date,time,opponent,opponent_logo,rayon_logo,venue,competition,home_or_away,home_score,away_score,status,ticket_price,available_tickets,live_stream_url,highlights_video_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-      [
-        toMySQL(date),
-        time || null,
-        opponent,
-        opponent_logo || null,
-        rayon_logo || null,
-        venue,
-        competition,
-        home_or_away,
-        home_score || null,
-        away_score || null,
-        status,
-        ticket_price,
-        available_tickets,
-        live_stream_url || null,
-        highlights_video_url || null
-      ]
-    );
-
-    return this.findById(result.insertId);
+    const match = await MatchModel.create(cleaned);
+    return match;
   },
+
   async update(id, data) {
-    const toMySQL = (v) => {
-      if (!v) return null;
-      if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return `${v} 00:00:00`;
-      return new Date(v).toISOString().slice(0, 19).replace('T', ' ');
-    };
-    const sanitized = sanitizeData(data, ['id', 'created_at', 'updated_at']);
-    const cleaned = Object.fromEntries(
-      Object.entries(sanitized).map(([k, v]) => {
-        if (k === 'date' && v) return [k, toMySQL(v)];
-        if (v === '') return [k, null];
-        return [k, v];
-      })
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+
+    const cleaned = { ...data };
+    
+    // Hindura date
+    if (cleaned.date) cleaned.date = toDate(cleaned.date);
+
+    // Kuraho fields zitari kuri schema
+    delete cleaned.id;
+    delete cleaned._id;
+    delete cleaned.created_at;
+    delete cleaned.updated_at;
+
+    // Hindura empty strings kuba null
+    Object.keys(cleaned).forEach(k => {
+      if (cleaned[k] === '') cleaned[k] = null;
+    });
+
+    const match = await MatchModel.findByIdAndUpdate(
+      id,
+      { $set: cleaned },
+      { new: true, runValidators: true }
     );
-    const fields = Object.keys(cleaned).map(k => `${k}=?`).join(',');
-    if (fields.length === 0) return this.findById(id);
-    await pool.query(`UPDATE matches SET ${fields} WHERE id=?`, [...Object.values(cleaned), id]);
-    return this.findById(id);
+    return match;
   },
+
   async delete(id) {
-    await pool.query('DELETE FROM matches WHERE id=?', [id]);
-  }
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await MatchModel.findByIdAndDelete(id);
+  },
 };
 
 module.exports = Match;

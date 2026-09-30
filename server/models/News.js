@@ -1,36 +1,78 @@
-const pool = require('../db');
-const { sanitizeData } = require('../utils/dateUtils');
+// server/models/News.js
+const mongoose = require('mongoose');
+
+const newsSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: String,
+  category: {
+    type: String,
+    enum: ['Announcement', 'Match Report', 'Transfer', 'General'],
+    default: 'General'
+  },
+  image: String,
+  author_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  link: { type: String, default: null },
+  published_at: { type: Date, default: Date.now },
+}, { timestamps: true });
+
+const NewsModel = mongoose.model('News', newsSchema);
 
 const News = {
   async findAll() {
-    const [rows] = await pool.query('SELECT * FROM news ORDER BY created_at DESC');
-    return rows;
+    return await NewsModel.find().sort({ created_at: -1 });
   },
+
   async findLatest(limit = 5) {
-    const [rows] = await pool.query('SELECT * FROM news ORDER BY created_at DESC LIMIT ?', [limit]);
-    return rows;
+    return await NewsModel.find()
+      .sort({ created_at: -1 })
+      .limit(parseInt(limit));
   },
+
   async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM news WHERE id=?', [id]);
-    return rows[0] || null;
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await NewsModel.findById(id);
   },
+
   async create({ title, content, category = 'General', image, author_id, link }) {
-    const [result] = await pool.query(
-      'INSERT INTO news (title,content,category,image,author_id,link) VALUES (?,?,?,?,?,?)',
-      [title, content, category, image||null, author_id||null, link||null]
-    );
-    return this.findById(result.insertId);
+    const news = await NewsModel.create({
+      title,
+      content,
+      category,
+      image: image || null,
+      author_id: author_id || null,
+      link: link || null,
+    });
+    return news;
   },
+
   async update(id, data) {
-    const sanitized = sanitizeData(data);
-    const fields = Object.keys(sanitized).map(k => `${k}=?`).join(',');
-    if (fields.length === 0) return this.findById(id);
-    await pool.query(`UPDATE news SET ${fields} WHERE id=?`, [...Object.values(sanitized), id]);
-    return this.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+
+    const cleaned = { ...data };
+
+    // Kuraho fields zitari kuri schema
+    delete cleaned.id;
+    delete cleaned._id;
+    delete cleaned.created_at;
+    delete cleaned.updated_at;
+
+    // Hindura empty strings kuba null
+    Object.keys(cleaned).forEach(k => {
+      if (cleaned[k] === '') cleaned[k] = null;
+    });
+
+    const news = await NewsModel.findByIdAndUpdate(
+      id,
+      { $set: cleaned },
+      { new: true, runValidators: true }
+    );
+    return news;
   },
+
   async delete(id) {
-    await pool.query('DELETE FROM news WHERE id=?', [id]);
-  }
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return await NewsModel.findByIdAndDelete(id);
+  },
 };
 
 module.exports = News;
